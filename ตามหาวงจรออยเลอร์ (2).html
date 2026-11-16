@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ตามหาวงจรออยเลอร์</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,500;0,600;1,500&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f6f3ea;--grid:#e2dbc8;--card:#fffdf7;--ink:#1c2b3a;--soft:#5b6b77;--gold:#c08a2e;--red:#b24a3c;--green:#527a62;--line:#c9c0a8;--onink:#fffdf7;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#141b22;--grid:#1f2a33;--card:#1b242d;--ink:#e7e2d4;--soft:#9aa6af;--gold:#d9a443;--red:#e0725f;--green:#6fb08a;--line:#33414c;--onink:#141b22;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#141b22;--grid:#1f2a33;--card:#1b242d;--ink:#e7e2d4;--soft:#9aa6af;--gold:#d9a443;--red:#e0725f;--green:#6fb08a;--line:#33414c;--onink:#141b22;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;padding:22px 14px 60px;color:var(--ink);font-family:"Newsreader","Noto Sans Thai","Sarabun",Georgia,serif;line-height:1.6;background:linear-gradient(var(--grid) 1px,transparent 1px) 0 0/28px 28px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/28px 28px,var(--paper)}
+.wrap{max-width:1040px;margin:0 auto}
+header{border-bottom:1.5px solid var(--ink);padding-bottom:14px;margin-bottom:16px}
+h1{font-size:clamp(28px,5vw,42px);font-style:italic;font-weight:600;margin:0 0 6px;line-height:1.2}
+header p{margin:0;color:var(--soft);font-size:16px;max-width:820px}
+.stage{display:grid;gap:14px}
+@media (min-width:860px){.stage{grid-template-columns:300px 1fr;align-items:start}}
+.panel{background:var(--card);border:1.5px solid var(--ink);border-radius:6px;padding:14px;min-width:0}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+.nbox{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px dashed var(--line);padding-bottom:8px;margin-bottom:12px}
+.nbox span{color:var(--soft);font-size:14px}
+.nbox b{font-family:"JetBrains Mono",monospace;font-size:38px;color:var(--gold);line-height:1}
+.btn{display:block;width:100%;font:inherit;font-size:15px;padding:10px 12px;min-height:44px;border:1.5px solid var(--ink);border-radius:6px;background:var(--ink);color:var(--onink);cursor:pointer;margin-top:8px;text-align:center}
+.btn.o{background:transparent;color:var(--ink)}
+.btn.r{background:transparent;color:var(--red);border-color:var(--red)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn:focus-visible,.tab:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.status{margin-top:12px;padding:10px 12px;border-left:4px solid var(--line);background:var(--paper);font-size:15px}
+.status.success{border-color:var(--green)}.status.fail{border-color:var(--red)}
+.stats{margin-top:12px}
+.stats div{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dotted var(--line);font-size:14px}
+.stats span{color:var(--soft)}.stats b{font-family:"JetBrains Mono",monospace}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tab{flex:1;font:inherit;font-size:16px;font-weight:600;padding:10px;min-height:44px;border:1.5px solid var(--ink);border-radius:6px;background:transparent;color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--onink)}
+svg{display:block;width:100%;height:auto;background:var(--paper);border:1px solid var(--line);border-radius:4px}
+.steps{margin-top:10px;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--soft);max-height:80px;overflow:auto;word-break:break-word}
+h3{margin:18px 0 8px;font-size:17px}
+h3:first-child{margin-top:0}
+.chk{list-style:none;margin:0;padding:0}
+.chk li{padding:6px 0;border-bottom:1px dotted var(--line);font-size:15px}
+.ok{color:var(--green);font-weight:700}.no{color:var(--red);font-weight:700}
+.scroll{overflow:auto;max-width:100%;border:1px solid var(--line);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:5px 8px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{background:var(--paper);position:sticky;top:0;font-weight:600}
+td.nb{white-space:normal;font-family:"JetBrains Mono",monospace;font-size:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:"JetBrains Mono",monospace;font-size:12px;border:1px solid var(--line);border-radius:999px;padding:2px 9px;background:var(--paper)}
+.hist{display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:6px}
+.hist div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;font-size:12px;font-family:"JetBrains Mono",monospace}
+.hist i{display:block;width:100%;background:var(--gold);border-radius:3px 3px 0 0;min-height:2px}
+.mx td,.mx th{padding:0;width:var(--c);min-width:var(--c);height:var(--c);text-align:center;font-family:"JetBrains Mono",monospace;font-size:var(--f);border:1px solid var(--line)}
+.mx td.on{background:var(--ink);color:var(--onink)}
+.empty{color:var(--soft);padding:30px 8px;text-align:center}
+.cp{width:auto;display:inline-block;padding:8px 14px;margin:0}
+.modal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.65);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:calc(16px + env(safe-area-inset-top,0px)) 14px calc(16px + env(safe-area-inset-bottom,0px))}
+.modal[hidden]{display:none}
+.mbox{background:var(--card);border:1.5px solid var(--ink);border-radius:8px;padding:12px;max-width:560px;width:100%}
+.mbox img{width:100%;height:auto;border-radius:4px;border:1px solid var(--line);display:block}
+a.btn{text-decoration:none;display:flex;align-items:center;justify-content:center}
+.bgbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
+.bgbar label{font-size:14px;color:var(--soft)}
+.bgbar input[type=color]{width:44px;height:40px;padding:2px;border:1.5px solid var(--ink);border-radius:6px;background:var(--card);cursor:pointer}
+#sw{display:flex;flex-wrap:wrap;gap:6px}
+.dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--ink);cursor:pointer;padding:0}
+.mini{font:inherit;font-size:14px;min-height:40px;padding:6px 12px;border:1.5px solid var(--ink);border-radius:6px;background:transparent;color:var(--ink);cursor:pointer}
+.dot:focus-visible,.mini:focus-visible,.bgbar input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+footer{margin-top:20px;color:var(--soft);font-size:13px;text-align:center}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>ตามหาวงจรออยเลอร์</h1>
+  <p>สุ่มสร้างกราฟอย่างง่ายที่มี n จุดยอด แต่ละจุดเชื่อมกับจุดใกล้เคียงแบบสุ่ม 1–4 เส้น (ไม่เชื่อมซ้ำ) แล้วตรวจว่ามีวงจรออยเลอร์หรือไม่ ถ้าไม่ผ่าน กดเพิ่มจุดยอดครั้งละ 5 จนถึง 40 ดูกราฟในแท็บ “กราฟ” และดูข้อมูลของกราฟที่สุ่มได้ในแท็บ “ข้อมูลกราฟ”</p>
+  <div class="bgbar"><label for="bgc">สีพื้นหลัง</label><input type="color" id="bgc" value="#f6f3ea" aria-label="เลือกสีพื้นหลัง"><span id="sw"></span><button class="mini" id="bgR">🎨 สุ่มสี</button><button class="mini" id="bgD">คืนค่าเดิม</button></div>
+</header>
+
+<div class="stage">
+  <section class="panel" aria-label="ควบคุม">
+    <div class="nbox"><span>จำนวนจุดยอดที่ทดลอง</span><b id="curN">5</b></div>
+    <button class="btn" id="runBtn">▶ เริ่มสุ่มกราฟ</button>
+    <button class="btn o" id="rerollBtn" disabled>🔄 สุ่มกราฟใหม่ (n เดิม)</button>
+    <button class="btn o" id="nextBtn" disabled>ถัดไป → เพิ่ม 5 จุดยอด</button>
+    <label for="maxT" style="display:block;margin-top:10px;font-size:14px;color:var(--soft)">สุ่มสูงสุดกี่ครั้ง (หยุดเมื่อเจอ)</label>
+    <select id="maxT" style="width:100%;min-height:44px;font:inherit;font-size:15px;border:1.5px solid var(--ink);border-radius:6px;background:var(--card);color:var(--ink);padding:0 10px;margin-top:4px"><option>10</option><option selected>50</option><option>200</option><option>1000</option></select>
+    <button class="btn o" id="batchBtn">🎲 สุ่มจนกว่าจะพบ</button>
+    <button class="btn o" id="replayBtn" disabled>↻ เล่นแอนิเมชันอีกครั้ง</button>
+    <button class="btn o" id="shareBtn" disabled>⇪ แชร์เป็นรูปภาพ</button>
+    <button class="btn r" id="resetBtn" disabled>⟲ เริ่มระบบใหม่ (n = 5)</button>
+    <div class="status" id="status" role="status">กด “เริ่มสุ่มกราฟ” เพื่อเริ่มการทดลอง</div>
+    <div class="stats">
+      <div><span>จำนวนจุดยอด</span><b id="sN">—</b></div>
+      <div><span>เส้นเชื่อมทั้งหมด</span><b id="sE">—</b></div>
+      <div><span>ดีกรีเฉลี่ย</span><b id="sD">—</b></div>
+      <div><span>วงจรออยเลอร์</span><b id="sU">—</b></div>
+      <div><span>สุ่มไปแล้ว</span><b id="sP">—</b></div>
+    </div>
+  </section>
+
+  <section class="panel" aria-label="ผลลัพธ์">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tabG" aria-selected="true" aria-controls="pG">📈 กราฟ</button>
+      <button class="tab" role="tab" id="tabD" aria-selected="false" aria-controls="pD">📋 ข้อมูลกราฟ</button>
+    </div>
+    <div id="pG" role="tabpanel" aria-labelledby="tabG">
+      <svg id="svg" viewBox="0 0 720 540" role="img" aria-label="กราฟที่สุ่มได้"></svg>
+      <div class="steps" id="steps"></div>
+    </div>
+    <div id="pD" role="tabpanel" aria-labelledby="tabD" hidden></div>
+  </section>
+</div>
+<footer>Random Simple Graph, Degree, Connected Graph, Hierholzer’s Algorithm, n = 5, 10, 15, …, 40</footer>
+</div>
+
+<div class="modal" id="shm" hidden role="dialog" aria-label="รูปผลลัพธ์"><div class="mbox"><img id="shImg" alt="รูปสรุปผลการสุ่มกราฟ"><button class="btn" id="shDo">⇪ แชร์รูปภาพ</button><a class="btn o" id="shDl" download="euler-graph.png">⬇ ดาวน์โหลดรูป</a><button class="btn o" id="shX">ปิด</button><p id="shNote" style="font-size:13px;color:var(--soft);margin:8px 0 0">ถ้าแชร์ไม่ได้ กดค้างที่รูปเพื่อบันทึก</p></div></div>
+<script>
+const SIZES=[5,10,15,20,25,30,35,40],MAXD=4,POOL=4,BATCH=5,VW=720,VH=540;
+const $=id=>document.getElementById(id);
+const svg=$("svg"),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+let attempts=0,searching=false,vis=null,si=0,g=null,res=null,started=false,running=false,canNext=false,token=0,batch=[],batchN=0,prob=null;
+
+/* ---------- graph generation ---------- */
+function genPoints(n){
+  const m=44,rnd=()=>[m+Math.random()*(VW-2*m),m+Math.random()*(VH-2*m)],pts=[rnd()];
+  while(pts.length<n){
+    let best=null,bd=-1;
+    for(let c=0;c<14;c++){const p=rnd();let d=Infinity;for(const q of pts){const t=(p[0]-q[0])**2+(p[1]-q[1])**2;if(t<d)d=t}if(d>bd){bd=d;best=p}}
+    pts.push(best);
+  }
+  return pts.map(p=>[Math.round(p[0]),Math.round(p[1])]);
+}
+function genGraph(n){
+  const pts=genPoints(n),adj=Array.from({length:n},()=>new Array(n).fill(0)),deg=new Array(n).fill(0),edges=[];
+  const add=(u,v)=>{adj[u][v]=adj[v][u]=1;deg[u]++;deg[v]++;edges.push([Math.min(u,v),Math.max(u,v)])};
+  const dd=(a,b)=>Math.hypot(pts[a][0]-pts[b][0],pts[a][1]-pts[b][1]);
+  const D=new Float64Array(n*n);
+  for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){const t=(pts[i][0]-pts[j][0])**2+(pts[i][1]-pts[j][1])**2;D[i*n+j]=D[j*n+i]=t}
+  const order=[...Array(n).keys()];
+  for(let i=n-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}
+  for(const u of order){
+    const target=1+Math.floor(Math.random()*MAXD);
+    while(deg[u]<target){
+      const pool=[];
+      for(let v=0;v<n;v++){
+        if(v===u||adj[u][v]||deg[v]>=MAXD)continue;
+        const d=D[u*n+v];
+        if(pool.length<POOL||d<pool[pool.length-1][0]){
+          let i=pool.length;pool.push(null);
+          while(i>0&&pool[i-1][0]>d){pool[i]=pool[i-1];i--}
+          pool[i]=[d,v];
+          if(pool.length>POOL)pool.pop();
+        }
+      }
+      if(!pool.length)break;
+      add(u,pool[Math.floor(Math.random()*pool.length)][1]);
+    }
+  }
+  edges.sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
+  return {n,pts,adj,deg,edges,len:(a,b)=>Math.round(dd(a,b))};
+}
+function analyze(g){
+  const seen=new Array(g.n).fill(false);let comps=0;
+  for(let s=0;s<g.n;s++){
+    if(seen[s])continue;comps++;seen[s]=true;const st=[s];
+    while(st.length){const u=st.pop();for(let v=0;v<g.n;v++)if(g.adj[u][v]&&!seen[v]){seen[v]=true;st.push(v)}}
+  }
+  const odd=g.deg.map((d,i)=>d%2?i:-1).filter(i=>i>=0);
+  const r={comps,odd,connected:comps===1,hasEdges:g.edges.length>0};
+  r.passed=r.hasEdges&&r.connected&&odd.length===0;
+  if(r.passed){r.path=hierholzer(g);r.valid=validate(g,r.path)}else r.walk=attempt(g,r);
+  return r;
+}
+function attempt(g,r){
+  const w=g.adj.map(x=>x.slice());
+  let s=r.odd.length?r.odd[0]:0;
+  if(!g.deg[s])s=g.deg.findIndex(d=>d>0);
+  if(s<0)return[0];
+  const p=[s];
+  for(;;){
+    const u=p[p.length-1],c=[];
+    for(let v=0;v<g.n;v++)if(w[u][v])c.push(v);
+    if(!c.length)break;
+    const f=c[Math.floor(Math.random()*c.length)];
+    w[u][f]=w[f][u]=0;p.push(f);
+  }
+  return p;
+}
+function hierholzer(g){
+  const w=g.adj.map(r=>r.slice()),st=[0],path=[];
+  while(st.length){
+    const u=st[st.length-1];let f=-1;
+    for(let v=0;v<g.n;v++)if(w[u][v]){f=v;break}
+    if(f>=0){w[u][f]=w[f][u]=0;st.push(f)}else path.push(st.pop());
+  }
+  return path.reverse();
+}
+function validate(g,p){
+  if(p.length!==g.edges.length+1||p[0]!==p[p.length-1])return false;
+  const used=new Set();
+  for(let i=0;i<p.length-1;i++){
+    const a=p[i],b=p[i+1];if(!g.adj[a][b])return false;
+    const k=Math.min(a,b)+"-"+Math.max(a,b);if(used.has(k))return false;used.add(k);
+  }
+  return used.size===g.edges.length;
+}
+
+/* ---------- drawing ---------- */
+const lab=i=>i+1;
+function draw(done=new Set(),cur=-1,walk=null){
+  if(!g){svg.innerHTML=`<text x="360" y="270" text-anchor="middle" font-size="22" fill="var(--soft)">กด “เริ่มสุ่มกราฟ” เพื่อสร้างกราฟ</text>`;return}
+  const r=g.n>25?9:g.n>12?11:14,fs=g.n>25?9:g.n>12?11:13;let h="";
+  const VE=vis?vis.e:g.edges.length,VC=vis?vis.c:g.n;
+  g.edges.forEach(([a,b],idx)=>{
+    if(idx>=VE)return;
+    const d=done.has(a+"-"+b),A=g.pts[a],B=g.pts[b];
+    h+=`<line x1="${A[0]}" y1="${A[1]}" x2="${B[0]}" y2="${B[1]}" stroke="${d?"var(--green)":"var(--soft)"}" stroke-width="${d?4:2}" stroke-linecap="round" opacity="${d?1:.7}"/>`;
+  });
+  if(walk)h+=`<line x1="${walk.ax}" y1="${walk.ay}" x2="${walk.x}" y2="${walk.y}" stroke="var(--gold)" stroke-width="5" stroke-linecap="round"/>`;
+  g.pts.forEach((p,i)=>{
+    const odd=i<VC&&g.deg[i]%2===1,pend=i>=VC;
+    h+=`<circle cx="${p[0]}" cy="${p[1]}" r="${r}" fill="${odd?"var(--red)":"var(--card)"}" stroke="${i===cur?"var(--gold)":odd?"var(--red)":pend?"var(--soft)":"var(--green)"}" stroke-width="${i===cur?5:2.5}"/><text x="${p[0]}" y="${p[1]+fs*.36}" text-anchor="middle" font-size="${fs}" font-weight="700" font-family="JetBrains Mono,monospace" fill="${odd?"#fff":"var(--ink)"}">${lab(i)}</text>`;
+  });
+  if(walk)h+=`<circle cx="${walk.x}" cy="${walk.y}" r="${r*.62}" fill="var(--gold)" stroke="var(--ink)" stroke-width="2.5"/>`;
+  svg.innerHTML=h;
+}
+const frame=()=>new Promise(r=>requestAnimationFrame(r));
+async function trace(path,my,keep=false,slow=false){
+  const done=new Set(),txt=[lab(path[0])],steps=path.length-1,stEl=$("steps");
+  const dur=matchMedia("(prefers-reduced-motion:reduce)").matches?30:slow?Math.round(600-(g.n-5)/35*400):Math.round(160-(g.n-5)/35*110);
+  stEl.textContent=txt.join(" → ");draw(done,path[0]);await sleep(slow?300:100);
+  for(let i=1;i<path.length;i++){
+    const a=path[i-1],b=path[i],A=g.pts[a],B=g.pts[b],t0=performance.now();
+    for(;;){
+      if(my!==token)return false;
+      const p=Math.min(1,(performance.now()-t0)/dur),e=p*p*(3-2*p);
+      draw(done,-1,{ax:A[0],ay:A[1],x:A[0]+(B[0]-A[0])*e,y:A[1]+(B[1]-A[1])*e});
+      if(p>=1)break;
+      await frame();
+    }
+    done.add(Math.min(a,b)+"-"+Math.max(a,b));
+    txt.push(lab(b));stEl.textContent=txt.join(" → ");stEl.scrollTop=stEl.scrollHeight;
+    draw(done,b);
+    await sleep(slow?60:12);
+  }
+  draw(done,keep?path[path.length-1]:-1);return true;
+}
+
+/* ---------- ui state ---------- */
+function setStatus(t,c=""){const s=$("status");s.textContent=t;s.className="status "+c}
+function refresh(){
+  $("runBtn").disabled=running||started;
+  $("rerollBtn").disabled=running||!started;
+  $("nextBtn").disabled=running||!started||!canNext;
+  $("batchBtn").disabled=running&&!searching;$("maxT").disabled=running;
+  $("replayBtn").disabled=running||!res;
+  $("shareBtn").disabled=running||!res;
+  $("resetBtn").disabled=!started;
+  $("batchBtn").textContent=searching?"⏹ หยุดการสุ่ม":`🎲 สุ่มจนกว่าจะพบ (n = ${SIZES[si]})`;
+  $("curN").textContent=SIZES[si];
+  $("nextBtn").textContent=canNext?`ถัดไป → เพิ่ม 5 จุดยอด (n = ${SIZES[si+1]})`:(res&&res.passed?"พบวงจรออยเลอร์แล้ว":si===SIZES.length-1&&started?"ถึงขีดจำกัดแล้ว (n = 40)":"ถัดไป → เพิ่ม 5 จุดยอด");
+}
+function stats(){
+  $("sN").textContent=g?g.n:"—";
+  $("sE").textContent=g?g.edges.length:"—";
+  $("sD").textContent=g?(2*g.edges.length/g.n).toFixed(2):"—";
+  $("sU").textContent=res?(res.passed?"ผ่าน ✓":"ไม่ผ่าน ✗"):"—";
+  $("sP").textContent=attempts?attempts.toLocaleString()+" ครั้ง":"—";
+}
+function why(){
+  const p=[];
+  if(!res.hasEdges)p.push("ไม่มีเส้นเชื่อม");
+  if(res.odd.length)p.push(`จุด ${res.odd.map(lab).join(", ")} มีดีกรีเป็นเลขคี่`);
+  if(!res.connected)p.push(`กราฟแยกเป็น ${res.comps} ส่วน`);
+  return p.join(" และ ");
+}
+
+/* ---------- data tab ---------- */
+function renderData(){
+  const el=$("pD");
+  if(!g){el.innerHTML=`<div class="empty">ยังไม่มีข้อมูล กด “เริ่มสุ่มกราฟ” เพื่อสร้างกราฟก่อน</div>`;return}
+  const n=g.n,mark=b=>b?`<span class="ok">✓</span>`:`<span class="no">✗</span>`;
+  let h=`<h3>เงื่อนไขวงจรออยเลอร์ของกราฟนี้</h3><ul class="chk">
+   <li>${mark(res.hasEdges)} มีเส้นเชื่อมอย่างน้อย 1 เส้น (${g.edges.length} เส้น)</li>
+   <li>${mark(res.connected)} กราฟเชื่อมต่อกันทั้งหมด (พบ ${res.comps} ส่วน)</li>
+   <li>${mark(res.odd.length===0)} ทุกจุดมีดีกรีเป็นเลขคู่ ${res.odd.length?`(จุดคี่: ${res.odd.map(lab).join(", ")})`:""}</li>
+   <li><b>${res.passed?`<span class="ok">ผ่าน มีวงจรออยเลอร์</span>`:`<span class="no">ไม่ผ่าน</span>`}</b></li></ul>`;
+  if(res.passed)h+=`<h3>เส้นทางวงจรออยเลอร์ (เริ่มที่จุด 1) ${res.valid?`<span class="ok">ตรวจแล้วถูกต้อง</span>`:""}</h3><div class="chips" style="font-size:12px">${res.path.map(lab).join(" → ")}</div>`;
+  const cnt=[0,0,0,0,0];g.deg.forEach(d=>cnt[d]++);const mx=Math.max(...cnt,1);
+  h+=`<h3>การกระจายของดีกรี</h3><div class="hist">${cnt.map((c,d)=>`<div><span>${c}</span><i style="height:${c/mx*60}px"></i><span>ดีกรี ${d}</span></div>`).join("")}</div>`;
+  h+=`<h3>จุดยอด (${n} จุด)</h3><div class="scroll" style="max-height:300px"><table><tr><th>จุด</th><th>พิกัด (x, y)</th><th>ดีกรี</th><th>ชนิด</th><th>เชื่อมกับ</th></tr>`;
+  for(let i=0;i<n;i++){
+    const nb=[];for(let j=0;j<n;j++)if(g.adj[i][j])nb.push(lab(j));
+    h+=`<tr><td><b>${lab(i)}</b></td><td class="mono">${g.pts[i][0]}, ${g.pts[i][1]}</td><td class="mono">${g.deg[i]}</td><td>${g.deg[i]%2?`<span class="no">คี่</span>`:`<span class="ok">คู่</span>`}</td><td class="nb">${nb.join(", ")||"—"}</td></tr>`;
+  }
+  h+=`</table></div><h3>เส้นเชื่อม (${g.edges.length} เส้น)</h3><div class="chips">${g.edges.map(([a,b])=>`<span class="chip">${lab(a)}–${lab(b)} · ${g.len(a,b)}</span>`).join("")}</div>
+   <p style="font-size:13px;color:var(--soft);margin:6px 0 0">ตัวเลขหลังจุดกลางคือความยาวเส้นบนผืนผ้าใบ (หน่วยพิกเซล)</p>`;
+  const c=n>25?13:n>14?17:22,f=n>25?8:n>14?10:12;
+  h+=`<h3>เมทริกซ์ประชิด (Adjacency Matrix)</h3><div class="scroll" style="max-height:340px"><table class="mx" style="--c:${c}px;--f:${f}px;width:auto"><tr><th></th>${g.pts.map((_,j)=>`<th>${lab(j)}</th>`).join("")}</tr>`;
+  for(let i=0;i<n;i++)h+=`<tr><th>${lab(i)}</th>${g.adj[i].map(v=>`<td class="${v?"on":""}">${v?1:""}</td>`).join("")}</tr>`;
+  h+=`</table></div>`;
+  if(batch.length){
+    h+=`<h3>ผลสุ่มครบ ${BATCH} ครั้งล่าสุด (n = ${batchN})</h3><div class="scroll"><table><tr><th>ครั้งที่</th><th>เส้นเชื่อม</th><th>จุดคี่</th><th>เชื่อมต่อ</th><th>ผล</th></tr>${batch.map(b=>`<tr><td>${b.i}</td><td class="mono">${b.e}</td><td class="mono">${b.odd}</td><td>${mark(b.conn)}</td><td>${b.ok?`<span class="ok">ผ่าน</span>`:`<span class="no">ไม่ผ่าน</span>`}</td></tr>`).join("")}</table></div>`;
+  }
+  h+=`<p style="margin-top:16px"><button class="btn o cp" id="cpBtn">คัดลอกข้อมูลกราฟ (JSON)</button></p>`;
+  el.innerHTML=h;
+  $("cpBtn").onclick=async()=>{
+    const data={n,vertices:g.pts.map((p,i)=>({id:lab(i),x:p[0],y:p[1],degree:g.deg[i],neighbors:g.adj[i].map((v,j)=>v?lab(j):0).filter(Boolean)})),edges:g.edges.map(e=>[lab(e[0]),lab(e[1])]),eulerCircuit:res.passed,eulerPath:res.passed?res.path.map(lab):null};
+    const b=$("cpBtn");
+    try{await navigator.clipboard.writeText(JSON.stringify(data,null,1));b.textContent="คัดลอกแล้ว ✓"}catch(e){b.textContent="คัดลอกไม่ได้ในหน้านี้"}
+    setTimeout(()=>{b.textContent="คัดลอกข้อมูลกราฟ (JSON)"},1800);
+  };
+}
+function setTab(t){
+  const gr=t==="g";
+  $("tabG").setAttribute("aria-selected",gr);$("tabD").setAttribute("aria-selected",!gr);
+  $("pG").hidden=!gr;$("pD").hidden=gr;
+}
+$("tabG").onclick=()=>setTab("g");$("tabD").onclick=()=>setTab("d");
+
+/* ---------- flows ---------- */
+async function intro(my){
+  const E=g.edges.length,n=g.n,se=Math.max(1,Math.ceil(E/22)),sn=Math.max(1,Math.ceil(n/18));
+  vis={e:0,c:0};draw();
+  for(let k=0;k<E;k+=se){if(my!==token)return false;vis.e=k+se;draw();await sleep(32)}
+  vis.e=E;
+  for(let k=0;k<n;k+=sn){if(my!==token)return false;vis.c=k+sn;draw();await sleep(45)}
+  vis=null;draw();return true;
+}
+async function runOne(){
+  const my=++token;running=true;started=true;canNext=false;res=null;prob=null;attempts=0;
+  const n=SIZES[si];g=genGraph(n);const r0=analyze(g);
+  $("steps").textContent="";vis={e:0,c:0};draw();stats();refresh();
+  setStatus(`สุ่มกราฟ n = ${n} ได้ ${g.edges.length} เส้นเชื่อม กำลังตรวจสอบ…`);
+  if(!(await intro(my)))return;
+  res=r0;stats();renderData();refresh();
+  if(res.passed){
+    setStatus(`พบวงจรออยเลอร์ที่ n = ${n} หยุดการทดลอง`,"success");
+    stats();refresh();
+    await trace(res.path,my);if(my!==token)return;
+  }else{
+    canNext=si<SIZES.length-1;
+    setStatus(`n = ${n} ไม่ผ่าน: ${why()} ลองเดินจากจุด ${lab(res.walk[0])}…`,"fail");
+    if(!(await trace(res.walk,my,true)))return;
+    setStatus(`n = ${n} ไม่ผ่าน: ${why()} เดินได้ ${res.walk.length-1}/${g.edges.length} เส้นแล้วติดที่จุด ${lab(res.walk[res.walk.length-1])}`+(canNext?" กดถัดไปเพื่อเพิ่มจุดยอด":" ถึงขีดจำกัดแล้ว"),"fail");
+  }
+  running=false;stats();refresh();
+}
+async function runSearch(){
+  if(searching){
+    token++;searching=false;running=false;
+    setStatus(`หยุดการสุ่มแล้ว (สุ่มไป ${attempts} ครั้ง)`,"fail");
+    stats();refresh();return;
+  }
+  const my=++token,n=SIZES[si],maxT=+$("maxT").value,delay=maxT>=1000?15:maxT>=200?40:130;
+  running=true;searching=true;started=true;canNext=false;res=null;attempts=0;vis=null;
+  $("steps").textContent="";
+  let found=null,last=null,lastR=null;
+  while(attempts<maxT){
+    attempts++;last=genGraph(n);lastR=analyze(last);
+    g=last;res=null;draw();stats();refresh();
+    if(lastR.passed){found=lastR;break}
+    setStatus(`สุ่มครั้งที่ ${attempts}/${maxT} (n = ${n}) ยังไม่ผ่าน มีจุดคี่ ${lastR.odd.length} จุด`);
+    await sleep(delay);if(my!==token)return;
+  }
+  searching=false;
+  if(!found){
+    g=last;res=lastR;running=false;canNext=si<SIZES.length-1;
+    draw();stats();renderData();refresh();
+    setStatus(`สุ่ม ${attempts} ครั้งที่ n = ${n} แล้วไม่พบวงจรออยเลอร์ (การสุ่มไม่รับประกันว่าจะเจอ) กดสุ่มอีกครั้งหรือกดถัดไปได้`,"fail");
+    return;
+  }
+  setStatus(`พบวงจรออยเลอร์ที่ n = ${n} ในการสุ่มครั้งที่ ${attempts}`,"success");
+  vis={e:0,c:0};draw();
+  if(!(await intro(my)))return;
+  res=found;stats();renderData();refresh();
+  if(!(await trace(res.path,my)))return;
+  running=false;canNext=si<SIZES.length-1;refresh();
+}
+async function replay(){
+  if(!res)return;
+  const my=++token,okc=res.passed,path=okc?res.path:res.walk;
+  running=true;refresh();$("steps").textContent="";
+  setStatus(okc?"กำลังแสดงเส้นทางวงจรออยเลอร์…":"กำลังเล่นการเดินซ้ำ…",okc?"success":"fail");
+  const ok=await trace(path,my,!okc,true);if(my!==token)return;
+  running=false;refresh();
+  if(ok)setStatus(okc?`แสดงเส้นทางครบ ${path.length-1} เส้นแล้ว`:`เดินได้ ${path.length-1}/${g.edges.length} เส้นแล้วติดที่จุด ${lab(path[path.length-1])}`,okc?"success":"fail");
+}
+function resetAll(){
+  token++;attempts=0;searching=false;vis=null;si=0;g=null;res=null;started=false;running=false;canNext=false;batch=[];prob=null;
+  $("steps").textContent="";draw();stats();renderData();refresh();
+  setStatus("กด “เริ่มสุ่มกราฟ” เพื่อเริ่มการทดลอง");
+}
+const CF="'Noto Sans Thai','Sarabun',system-ui,sans-serif";
+function wrapLines(ctx,text,maxW){
+  const seg=(typeof Intl!=="undefined"&&Intl.Segmenter)?[...new Intl.Segmenter("th",{granularity:"word"}).segment(text)].map(s=>s.segment):[...text];
+  const lines=[];let cur="";
+  for(const t of seg){
+    if(cur&&ctx.measureText(cur+t).width>maxW){lines.push(cur.trimEnd());cur=t.trimStart()}else cur+=t;
+  }
+  if(cur)lines.push(cur);
+  return lines;
+}
+function makeReport(){
+  const W=1080,P=40,cw=W-2*P,H0=5600;
+  const C={paper:"#f6f3ea",card:"#fffdf7",ink:"#1c2b3a",soft:"#5b6b77",gold:"#c08a2e",red:"#b24a3c",green:"#527a62",line:"#c9c0a8"};
+  const cv=document.createElement("canvas");cv.width=W;cv.height=H0;
+  const x=cv.getContext("2d");
+  x.fillStyle=C.paper;x.fillRect(0,0,W,H0);
+  let y=P;
+  const F=(w,s)=>{x.font=`${w} ${s}px ${CF}`};
+  const T=(t,s,w,col,tx=P,al="left")=>{F(w,s);x.fillStyle=col;x.textAlign=al;x.textBaseline="alphabetic";x.fillText(t,tx,y)};
+  const rr=(a,b,w,h,r)=>{x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()};
+  const para=(t,s,col,tx=P,w=cw,wt="400")=>{F(wt,s);x.fillStyle=col;x.textAlign="left";x.textBaseline="alphabetic";for(const l of wrapLines(x,t,w)){y+=Math.round(s*1.5);x.fillText(l,tx,y)}};
+  const H=t=>{y+=64;T(t,32,"700",C.ink);y+=12;x.fillStyle=C.gold;x.fillRect(P,y,80,4)};
+  const n=g.n,E=g.edges.length,degs=g.deg,odd=res.odd,ok=res.passed;
+  // header
+  y=P+44;T("ตามหาวงจรออยเลอร์",46,"700",C.ink);
+  const bt=ok?"พบวงจรออยเลอร์ ✓":"ไม่พบวงจรออยเลอร์ ✗";
+  F("700",24);const bw=x.measureText(bt).width+36;
+  rr(W-P-bw,P+6,bw,50,25);x.fillStyle=ok?C.green:C.red;x.fill();
+  x.fillStyle="#fff";x.textAlign="center";x.fillText(bt,W-P-bw/2,P+39);
+  y+=44;T(`ผลการสุ่มกราฟ n = ${n}  ·  ${new Date().toLocaleString("th-TH")}`,22,"400",C.soft);
+  // graph picture
+  y+=26;const sc=cw/720,gh=540*sc,gTop=y;
+  rr(P,gTop,cw,gh,8);x.fillStyle=C.card;x.fill();x.strokeStyle=C.ink;x.lineWidth=2;x.stroke();
+  const pathArr=ok?res.path:res.walk,used=new Set();
+  for(let i=1;i<pathArr.length;i++){const a=pathArr[i-1],b=pathArr[i];used.add(Math.min(a,b)+"-"+Math.max(a,b))}
+  const gX=i=>P+g.pts[i][0]*sc,gY=i=>gTop+g.pts[i][1]*sc;
+  g.edges.forEach(([a,b])=>{
+    const u=used.has(a+"-"+b);
+    x.beginPath();x.moveTo(gX(a),gY(a));x.lineTo(gX(b),gY(b));
+    x.strokeStyle=u?C.green:"#8d99a3";x.lineWidth=u?6:2.5;x.lineCap="round";x.stroke();
+  });
+  const r=(n>25?9:n>12?11:14)*sc,fs=(n>25?9:n>12?11:13)*sc;
+  g.pts.forEach((_,i)=>{
+    const od=degs[i]%2===1;
+    x.beginPath();x.arc(gX(i),gY(i),r,0,7);x.fillStyle=od?C.red:C.card;x.fill();
+    x.lineWidth=4;x.strokeStyle=od?C.red:C.green;x.stroke();
+    F("700",fs);x.fillStyle=od?"#fff":C.ink;x.textAlign="center";x.fillText(String(lab(i)),gX(i),gY(i)+fs*0.36);
+  });
+  const mk=i=>{x.beginPath();x.arc(gX(i),gY(i),r+7,0,7);x.strokeStyle=C.gold;x.lineWidth=6;x.stroke()};
+  if(pathArr.length){mk(pathArr[0]);if(!ok)mk(pathArr[pathArr.length-1])}
+  y=gTop+gh;
+  // legend
+  y+=40;let lx=P;
+  const leg=(drawFn,t)=>{drawFn(lx,y);F("400",21);x.fillStyle=C.soft;x.textAlign="left";x.fillText(t,lx+32,y);lx+=32+x.measureText(t).width+26};
+  leg((a,b)=>{x.beginPath();x.arc(a+10,b-7,9,0,7);x.fillStyle=C.red;x.fill()},"ดีกรีคี่");
+  leg((a,b)=>{x.beginPath();x.arc(a+10,b-7,8,0,7);x.fillStyle=C.card;x.fill();x.strokeStyle=C.green;x.lineWidth=3;x.stroke()},"ดีกรีคู่");
+  leg((a,b)=>{x.beginPath();x.moveTo(a,b-7);x.lineTo(a+22,b-7);x.strokeStyle=C.green;x.lineWidth=6;x.stroke()},"เส้นที่เดินแล้ว");
+  leg((a,b)=>{x.beginPath();x.arc(a+10,b-7,9,0,7);x.strokeStyle=C.gold;x.lineWidth=5;x.stroke()},"จุดเริ่มและจุดที่ติด");
+  // stats grid
+  y+=24;const bw2=(cw-16)/2,bh=84,sumLen=g.edges.reduce((s,[a,b])=>s+g.len(a,b),0);
+  const items=[["จำนวนจุดยอด",n],["เส้นเชื่อมทั้งหมด",E],["ดีกรีเฉลี่ย",(2*E/n).toFixed(2)],["ดีกรีต่ำสุด – สูงสุด",Math.min(...degs)+" – "+Math.max(...degs)],["จุดที่ดีกรีเป็นเลขคี่",odd.length+" จุด"],["ส่วนที่เชื่อมต่อกัน",res.comps+" ส่วน"],["ความยาวเส้นรวม",sumLen+" px"],["สุ่มกี่ครั้งกว่าจะได้กราฟนี้",(attempts||1).toLocaleString()+" ครั้ง"]];
+  items.forEach((it,i)=>{
+    const bx=P+(i%2)*(bw2+16),by=y+Math.floor(i/2)*(bh+12);
+    rr(bx,by,bw2,bh,8);x.fillStyle=C.card;x.fill();x.strokeStyle=C.line;x.lineWidth=2;x.stroke();
+    F("400",21);x.fillStyle=C.soft;x.textAlign="left";x.fillText(it[0],bx+18,by+30);
+    F("700",34);x.fillStyle=C.ink;x.fillText(String(it[1]),bx+18,by+68);
+  });
+  y+=4*(bh+12)-12;
+  // conditions
+  H("เงื่อนไขวงจรออยเลอร์ของกราฟนี้");y+=6;
+  const item=(good,t)=>{F("700",24);x.fillStyle=good?C.green:C.red;x.textAlign="left";x.fillText(good?"✓":"✗",P,y+36);para(t,24,C.ink,P+36,cw-36)};
+  item(res.hasEdges,`มีเส้นเชื่อมอย่างน้อย 1 เส้น (กราฟนี้มี ${E} เส้น)`);
+  item(res.connected,`กราฟเชื่อมต่อกันเป็นชิ้นเดียว (พบ ${res.comps} ส่วน)`);
+  item(!odd.length,odd.length?`ทุกจุดต้องมีดีกรีเป็นเลขคู่ แต่พบจุดคี่ ${odd.length} จุด คือจุด ${odd.map(lab).join(", ")}`:"ทุกจุดมีดีกรีเป็นเลขคู่");
+  // why
+  H(ok?"ทำไมจึงพบวงจรออยเลอร์":"ทำไมจึงไม่พบวงจรออยเลอร์");y+=4;
+  if(ok){
+    para(`ทุกจุดมีดีกรีเป็นเลขคู่ และกราฟเชื่อมต่อเป็นชิ้นเดียว ตามทฤษฎีบทของออยเลอร์ กราฟแบบนี้ต้องมีเส้นทางที่เดินผ่านทุกเส้นเชื่อมครั้งเดียวพอดีแล้วกลับมาจุดเริ่มต้นได้ ระบบหาเส้นทางด้วยอัลกอริทึม Hierholzer ได้ ${E} เส้น${res.valid?" และตรวจสอบแล้วว่าถูกต้อง":""}`,24,C.ink);
+    para(`เจอได้ไม่ง่าย เพราะต้องให้ทั้ง ${n} จุดมีดีกรีเป็นเลขคู่พร้อมกัน ยิ่ง n มากยิ่งมีโอกาสน้อยลง${attempts>1?` ครั้งนี้ต้องสุ่มถึง ${attempts.toLocaleString()} ครั้งจึงเจอ`:""}`,24,C.soft);
+  }else{
+    para("วงจรออยเลอร์ต้องเชื่อมต่อกันเป็นชิ้นเดียว และทุกจุดต้องมีดีกรีเป็นเลขคู่ (เดินเข้าและออกจากจุดเป็นคู่ ๆ) กราฟนี้ไม่ผ่านเพราะ",24,C.ink);
+    if(!res.hasEdges)para("• ไม่มีเส้นเชื่อมเลย",24,C.red,P+16,cw-16);
+    if(odd.length)para(`• จุด ${odd.map(lab).join(", ")} มีดีกรีเป็นเลขคี่ จึงมีจุดที่เดินเข้าไปแล้วไม่มีเส้นให้เดินออก`,24,C.red,P+16,cw-16);
+    if(!res.connected)para(`• กราฟแยกเป็น ${res.comps} ส่วน เดินข้ามระหว่างส่วนไม่ได้`,24,C.red,P+16,cw-16);
+    const w=res.walk;
+    para(`ลองเดินจากจุด ${lab(w[0])} โดยไม่ซ้ำเส้น เดินได้ ${w.length-1} จาก ${E} เส้น แล้วติดที่จุด ${lab(w[w.length-1])}`,24,C.soft);
+  }
+  // degree distribution
+  H("การกระจายของดีกรี");y+=18;
+  const cnt=[0,0,0,0,0];degs.forEach(d=>cnt[d]++);const mx=Math.max(...cnt,1);
+  cnt.forEach((c,d)=>{
+    const by=y+d*40,bwid=Math.max((cw-300)*c/mx,2);
+    F("400",22);x.fillStyle=C.ink;x.textAlign="left";x.fillText(`ดีกรี ${d}`,P,by+26);
+    x.fillStyle=d%2?C.red:C.green;x.fillRect(P+120,by+6,bwid,26);
+    F("700",22);x.fillStyle=C.ink;x.fillText(`${c} จุด`,P+130+bwid,by+26);
+  });
+  y+=5*40;
+  // vertices
+  H(`ข้อมูลจุดยอด (${n} จุด)`);y+=14;
+  const cols=3,cwid=cw/cols,rh=36,rows=Math.ceil(n/cols);
+  for(let i=0;i<n;i++){
+    const cx=P+(i%cols)*cwid,cy=y+Math.floor(i/cols)*rh+24,od=degs[i]%2===1,nb=[];
+    for(let j=0;j<n;j++)if(g.adj[i][j])nb.push(lab(j));
+    x.beginPath();x.arc(cx+8,cy-7,7,0,7);x.fillStyle=od?C.red:C.green;x.fill();
+    F("400",19);x.fillStyle=C.ink;x.textAlign="left";x.fillText(`${lab(i)}  ดีกรี ${degs[i]} → ${nb.join(",")}`,cx+24,cy);
+  }
+  y+=rows*rh;
+  // edges and path
+  H(`เส้นเชื่อมทั้งหมด (${E} เส้น)`);y+=2;
+  para(g.edges.map(([a,b])=>`${lab(a)}–${lab(b)}`).join("  "),20,C.ink);
+  H(ok?`เส้นทางวงจรออยเลอร์ (เริ่มที่จุด ${lab(pathArr[0])})`:`เส้นทางที่ลองเดิน (ติดที่จุด ${lab(pathArr[pathArr.length-1])})`);y+=2;
+  para(pathArr.map(lab).join(" → "),20,C.ink);
+  y+=54;T("สร้างด้วย Claude  ·  ตามหาวงจรออยเลอร์",20,"400",C.soft,W/2,"center");y+=P;
+  const out=document.createElement("canvas");out.width=W;out.height=Math.min(Math.ceil(y),H0);
+  out.getContext("2d").drawImage(cv,0,0);
+  return out;
+}
+let shBlob=null;
+async function share(){
+  if(!res||!g)return;
+  $("shareBtn").disabled=true;$("shNote").textContent="";
+  try{
+    const cv=makeReport();
+    shBlob=await new Promise(r=>cv.toBlob(r,"image/png"));
+    const url=cv.toDataURL("image/png");
+    $("shImg").src=url;$("shDl").href=url;$("shm").hidden=false;
+  }catch(e){setStatus("สร้างรูปไม่สำเร็จ ลองกดแชร์อีกครั้ง","fail")}
+  refresh();
+}
+$("shDo").onclick=async()=>{
+  try{
+    if(!shBlob)return;
+    const f=new File([shBlob],"euler-graph.png",{type:"image/png"});
+    if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:"ผลการสุ่มกราฟออยเลอร์"});return}
+    $("shNote").textContent="เครื่องนี้แชร์รูปตรง ๆ ไม่ได้ กดค้างที่รูปเพื่อบันทึก หรือกดดาวน์โหลด";
+  }catch(e){if(!e||e.name!=="AbortError")$("shNote").textContent="แชร์ไม่สำเร็จ กดค้างที่รูปเพื่อบันทึกแทน"}
+};
+const closeShare=()=>{$("shm").hidden=true};
+$("shX").onclick=closeShare;
+$("shm").addEventListener("click",e=>{if(e.target.id==="shm")closeShare()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeShare()});
+$("runBtn").onclick=runOne;
+$("rerollBtn").onclick=runOne;
+$("nextBtn").onclick=()=>{if(canNext){si++;runOne()}};
+$("batchBtn").onclick=runSearch;
+$("replayBtn").onclick=replay;
+$("shareBtn").onclick=share;
+$("resetBtn").onclick=resetAll;
+/* ---------- background colour ---------- */
+const root=document.documentElement,DEF="#f6f3ea";
+function applyBg(hex,save=true){
+  const m=/^#([0-9a-f]{6})$/i.exec(hex);if(!m)return;
+  const v=parseInt(m[1],16),lum=(0.299*(v>>16)+0.587*((v>>8)&255)+0.114*(v&255))/255,dark=lum<0.5,s=root.style;
+  root.setAttribute("data-theme",dark?"dark":"light");
+  s.setProperty("--paper",hex);
+  s.setProperty("--grid",`color-mix(in srgb,var(--ink) 10%,${hex})`);
+  s.setProperty("--card",dark?`color-mix(in srgb,${hex} 88%,#fff)`:`color-mix(in srgb,${hex} 35%,#fff)`);
+  $("bgc").value=hex;
+  if(save){try{localStorage.setItem("eulerBg",hex)}catch(e){}}
+}
+function resetBg(){
+  root.removeAttribute("data-theme");
+  ["--paper","--grid","--card"].forEach(p=>root.style.removeProperty(p));
+  $("bgc").value=DEF;
+  try{localStorage.removeItem("eulerBg")}catch(e){}
+}
+function hsl(h,s,l){
+  s/=100;l/=100;const a=s*Math.min(l,1-l),f=n=>{const k=(n+h/30)%12;return Math.round(255*(l-a*Math.max(-1,Math.min(k-3,9-k,1))))};
+  return "#"+[f(0),f(8),f(4)].map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+["#dbeafe","#fde2e4","#d8f3dc","#fff3bf","#e9d8fd","#1c2b3a","#0f3d3e","#3b1f2b"].forEach(c=>{
+  const b=document.createElement("button");b.className="dot";b.style.background=c;b.setAttribute("aria-label","สี "+c);
+  b.onclick=()=>applyBg(c);$("sw").appendChild(b);
+});
+$("bgc").addEventListener("input",e=>applyBg(e.target.value));
+$("bgR").onclick=()=>applyBg(hsl(Math.random()*360,55+Math.random()*20,Math.random()<0.5?88:20));
+$("bgD").onclick=resetBg;
+try{const sv=localStorage.getItem("eulerBg");if(sv)applyBg(sv,false)}catch(e){}
+resetAll();
+</script>
+</body>
+</html>
