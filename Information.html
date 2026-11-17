@@ -29,6 +29,25 @@ footer{border-top:1.5px solid var(--ink);padding-top:14px;margin-top:30px;color:
 .dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--ink);cursor:pointer;padding:0}
 .mini{font:inherit;font-size:14px;min-height:40px;padding:6px 12px;border:1.5px solid var(--ink);border-radius:6px;background:transparent;color:var(--ink);cursor:pointer}
 .dot:focus-visible,.mini:focus-visible,.bgbar input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+.animated-example{margin:16px 0;padding:16px;border:1.5px solid var(--line);background:var(--card);border-radius:7px}
+.animated-example h3{margin-top:0}
+.anim-diagram{padding:8px 10px}
+.route-svg{display:block;width:100%;height:auto;max-height:390px;overflow:visible}
+.base-edge{fill:none;stroke:var(--line);stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+.route-line{fill:none;stroke:var(--gold);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;opacity:.95}
+.circuit-line{stroke:var(--green)}
+.vertex circle{fill:var(--card);stroke:var(--ink);stroke-width:2.5}
+.vertex text:not(.degree-label){fill:var(--ink);font:700 17px "JetBrains Mono",monospace;text-anchor:middle;dominant-baseline:central}
+.vertex .degree-label{fill:var(--soft);font:12px "JetBrains Mono",monospace;text-anchor:middle}
+.vertex.odd circle{stroke:var(--red);stroke-width:3;fill:color-mix(in srgb,var(--red) 12%,var(--card))}
+.traveler{fill:var(--gold);stroke:var(--onink);stroke-width:3;filter:drop-shadow(0 1px 3px #0005)}
+#circuitDot{fill:var(--green)}
+.start-label{fill:var(--soft);font:12px "Noto Sans Thai",sans-serif}
+.anim-controls{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+.route-status{font-size:13px;color:var(--soft);font-family:"JetBrains Mono","Noto Sans Thai",monospace}
+@media(prefers-reduced-motion:reduce){.route-line{stroke-dashoffset:0!important}}
+
 </style>
 </head>
 <body>
@@ -40,7 +59,7 @@ footer{border-top:1.5px solid var(--ink);padding-top:14px;margin-top:30px;color:
   <div class="bgbar"><label for="bgc">สีพื้นหลัง</label><input type="color" id="bgc" value="#f6f3ea" aria-label="เลือกสีพื้นหลัง"><span id="sw"></span><button class="mini" id="bgR" type="button">🎨 สุ่มสี</button><button class="mini" id="bgD" type="button">คืนค่าเดิม</button></div>
   <nav class="topnav" aria-label="เมนูหลัก">
     <a class="navbtn" href="index.html">← กลับสู่หน้า Euler Circuit Finder</a>
-    <a class="navbtn light" href="#basics">เริ่มเรียนรู้ ↓</a>
+    <a class="navbtn light" href="Quiz.html">ทำแบบทดสอบ →</a>
   </nav>
 </header>
 
@@ -50,7 +69,7 @@ footer{border-top:1.5px solid var(--ink);padding-top:14px;margin-top:30px;color:
 
 <section id="basics">
   <div class="section-head"><span class="section-no">01</span><h2>เริ่มจากพื้นฐาน: Graph คืออะไร?</h2></div>
-  <p class="lead">กราฟ (Graph) เป็นโครงสร้างที่ใช้แทนความสัมพันธ์หรือการเชื่อมต่อระหว่างสิ่งต่าง ๆ โดยประกอบด้วย <strong>จุดยอด (Vertex)</strong> และ <strong>เส้นเชื่อม (Edge)</strong></p>
+  <p class="lead">กราฟ (Graph) เป็นโครงสร้างที่ใช้แทนความสัมพันธ์หรือการเชื่อมต่อระหว่างสิ่งต่าง ๆ โดยประกอบด้วย <strong>จุดยอด (Vertex)</strong> และ <strong>เส้นเชื่อม (Edge)</strong> (Rosen, 2011, pp. 641–650)</p>
   <div class="grid2">
     <div class="concept"><h3>จุดยอด (Vertex)</h3><p>ใช้แทนสิ่งหรือสถานที่ที่เราสนใจ เช่น ห้อง อาคาร สถานี หรือจุดเชื่อมต่อในระบบ</p></div>
     <div class="concept"><h3>เส้นเชื่อม (Edge)</h3><p>ใช้แทนความสัมพันธ์หรือเส้นทางที่เชื่อมระหว่างจุดยอดสองจุด เช่น ถนนหรือสายเชื่อมต่อ</p></div>
@@ -65,13 +84,128 @@ footer{border-top:1.5px solid var(--ink);padding-top:14px;margin-top:30px;color:
     </svg>
     <div class="legend"><span><i class="swatch"></i> จุดยอด</span><span><i class="swatch ink"></i> เส้นเชื่อม</span></div>
   </div>
-  <div class="key"><strong>กราฟอย่างง่าย (Simple Graph)</strong> คือกราฟไม่มีทิศทางที่ไม่มีลูป (เส้นเชื่อมกลับมายังจุดเดิม) และไม่มีเส้นเชื่อมซ้ำระหว่างจุดยอดคู่เดียวกัน</div>
-  <p><strong>กราฟเชื่อมต่อ (Connected Graph)</strong> หมายถึงกราฟที่สามารถเดินจากจุดยอดใด ๆ ไปยังจุดยอดอื่นได้ผ่านเส้นเชื่อมอย่างน้อยหนึ่งเส้นทาง หากมีบางจุดที่ไม่สามารถเดินถึงกันได้ กราฟนั้นจะเป็นกราฟไม่เชื่อมต่อ</p>
+  <h3>ความสัมพันธ์และลักษณะของเส้นเชื่อม</h3>
+  <p>ก่อนทำความเข้าใจ Simple Graph ควรรู้จักคำศัพท์พื้นฐาน 4 คำ ได้แก่ Adjacent, Parallel Edges, Loop และ Isolated Point ซึ่งใช้อธิบายความสัมพันธ์ระหว่างจุดยอดและเส้นเชื่อมในกราฟ (Rosen, 2011, pp. 651–667)</p>
+  <div class="grid2">
+    <div class="concept">
+      <h3>1. Adjacent (อยู่ติดกัน)</h3>
+      <p>จุดยอดสองจุดเรียกว่า <strong>Adjacent Vertices</strong> เมื่อมีเส้นเชื่อมต่อระหว่างจุดยอดทั้งสองโดยตรง ส่วนเส้นเชื่อมสองเส้นเรียกว่า <strong>Adjacent Edges</strong> เมื่อมีจุดยอดปลายร่วมกัน</p>
+      <div class="diagram">
+        <svg viewBox="0 0 320 150" role="img" aria-label="จุดยอด A และ B อยู่ติดกันเพราะมีเส้นเชื่อม e1 ระหว่างกัน และเส้น e1 กับ e2 มีจุด B ร่วมกัน">
+          <path d="M65 75 L160 75 L255 75" stroke="var(--line)" stroke-width="7" stroke-linecap="round" fill="none"/>
+          <path d="M65 75 L160 75" stroke="var(--gold)" stroke-width="7" stroke-linecap="round"/>
+          <path d="M160 75 L255 75" stroke="var(--red)" stroke-width="7" stroke-linecap="round"/>
+          <g fill="var(--card)" stroke="var(--ink)" stroke-width="2"><circle cx="65" cy="75" r="18"/><circle cx="160" cy="75" r="18"/><circle cx="255" cy="75" r="18"/></g>
+          <g fill="var(--ink)" font-size="14" font-weight="700" text-anchor="middle" dominant-baseline="central"><text x="65" y="75">A</text><text x="160" y="75">B</text><text x="255" y="75">C</text></g>
+          <g fill="var(--soft)" font-size="12" text-anchor="middle"><text x="112" y="52">e₁</text><text x="207" y="52">e₂</text><text x="112" y="119">A กับ B Adjacent</text></g>
+        </svg>
+      </div>
+      <p class="muted">A และ B เป็นจุดยอดที่อยู่ติดกัน และ e₁ กับ e₂ เป็นเส้นเชื่อมที่อยู่ติดกันเพราะมีจุด B ร่วมกัน</p>
+    </div>
+    <div class="concept">
+      <h3>2. Parallel Edges (เส้นเชื่อมขนาน)</h3>
+      <p>หมายถึงเส้นเชื่อมตั้งแต่สองเส้นขึ้นไปที่เชื่อมระหว่างจุดยอดคู่เดียวกัน เช่น มีเส้นเชื่อมหลายเส้นระหว่าง A และ B</p>
+      <div class="diagram">
+        <svg viewBox="0 0 320 150" role="img" aria-label="เส้นเชื่อมขนานสามเส้นเชื่อมระหว่างจุดยอด A และ B">
+          <path d="M75 75 Q160 5 245 75 M75 75 Q160 75 245 75 M75 75 Q160 145 245 75" stroke="var(--gold)" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <g fill="var(--card)" stroke="var(--ink)" stroke-width="2"><circle cx="75" cy="75" r="20"/><circle cx="245" cy="75" r="20"/></g>
+          <g fill="var(--ink)" font-size="15" font-weight="700" text-anchor="middle" dominant-baseline="central"><text x="75" y="75">A</text><text x="245" y="75">B</text></g>
+          <text x="160" y="18" fill="var(--soft)" font-size="12" text-anchor="middle">เส้นเชื่อม 3 เส้น</text>
+        </svg>
+      </div>
+      <p class="muted">แม้จะมีจุดปลายเป็น A และ B เหมือนกัน แต่ถือเป็นเส้นเชื่อมคนละเส้น</p>
+    </div>
+    <div class="concept">
+      <h3>3. Loop (ลูป)</h3>
+      <p>คือเส้นเชื่อมที่เริ่มต้นและสิ้นสุดที่จุดยอดเดียวกัน หรือเป็นเส้นเชื่อมที่วนกลับมายังจุดเดิม</p>
+      <div class="diagram">
+        <svg viewBox="0 0 320 150" role="img" aria-label="จุดยอด A มีเส้นเชื่อมลูปวนกลับมาที่ตัวเอง">
+          <path d="M145 65 C65 5 245 5 175 65" stroke="var(--red)" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <circle cx="160" cy="88" r="23" fill="var(--card)" stroke="var(--ink)" stroke-width="2.5"/>
+          <text x="160" y="88" fill="var(--ink)" font-size="17" font-weight="700" text-anchor="middle" dominant-baseline="central">A</text>
+          <text x="160" y="25" fill="var(--soft)" font-size="12" text-anchor="middle">Loop</text>
+        </svg>
+      </div>
+      <p class="muted">ลูป 1 เส้นมีส่วนต่อ Degree ของจุดยอดนั้นเท่ากับ 2</p>
+    </div>
+    <div class="concept">
+      <h3>4. Isolated Point (จุดยอดโดดเดี่ยว)</h3>
+      <p>คือจุดยอดที่ไม่มีเส้นเชื่อม (Edge) ใด ๆ เชื่อมต่ออยู่เลย จึงไม่สามารถเดินทางจากจุดยอดนี้ไปยังจุดยอดอื่นผ่านเส้นเชื่อมได้</p>
+      <div class="diagram">
+        <svg viewBox="0 0 320 150" role="img" aria-label="จุดยอด A โดดเดี่ยว ไม่มีเส้นเชื่อมติดอยู่">
+          <circle cx="160" cy="72" r="24" fill="var(--card)" stroke="var(--ink)" stroke-width="2.5"/>
+          <text x="160" y="72" fill="var(--ink)" font-size="17" font-weight="700" text-anchor="middle" dominant-baseline="central">A</text>
+          <text x="160" y="124" fill="var(--soft)" font-size="12" text-anchor="middle">ไม่มี Edge เชื่อมต่อ</text>
+        </svg>
+      </div>
+      <p class="muted">จุดยอดโดดเดี่ยวมี Degree เท่ากับ 0 เพราะไม่มีเส้นเชื่อมติดอยู่เลย</p>
+    </div>
+  </div>
+
+  <h3>กราฟอย่างง่าย (Simple Graph)</h3>
+  <p>คือกราฟไม่มีทิศทางที่ <strong>ไม่มี Loop และไม่มี Parallel Edges</strong> กล่าวคือไม่มีเส้นเชื่อมที่วนกลับจุดเดิม และไม่มีเส้นเชื่อมซ้ำระหว่างจุดยอดคู่เดียวกัน (Rosen, 2011, pp. 651–667)</p>
+  <div class="grid2">
+    <div class="concept">
+      <h3><span style="color:var(--green)">✓ เป็น Simple Graph</span></h3>
+      <p>กราฟตัวอย่างนี้ไม่มีลูปและไม่มีเส้นเชื่อมขนาน ทุกคู่จุดยอดเชื่อมกันด้วยเส้นเชื่อมได้ไม่เกินหนึ่งเส้น</p>
+      <div class="diagram">
+        <svg viewBox="0 0 320 180" role="img" aria-label="กราฟสามเหลี่ยมที่เป็น Simple Graph ไม่มีลูปและเส้นเชื่อมขนาน">
+          <path d="M160 30 L65 145 L255 145 Z" stroke="var(--green)" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <g fill="var(--card)" stroke="var(--ink)" stroke-width="2"><circle cx="160" cy="30" r="19"/><circle cx="65" cy="145" r="19"/><circle cx="255" cy="145" r="19"/></g>
+          <g fill="var(--ink)" font-size="15" font-weight="700" text-anchor="middle" dominant-baseline="central"><text x="160" y="30">A</text><text x="65" y="145">B</text><text x="255" y="145">C</text></g>
+        </svg>
+      </div>
+    </div>
+    <div class="concept">
+      <h3><span style="color:var(--red)">✕ ไม่เป็น Simple Graph</span></h3>
+      <p>กราฟนี้มีทั้งลูปที่จุด C และเส้นเชื่อมขนานระหว่าง A กับ B จึงไม่เป็นกราฟอย่างง่าย</p>
+      <div class="diagram">
+        <svg viewBox="0 0 320 180" role="img" aria-label="กราฟที่ไม่เป็น Simple Graph เพราะมีเส้นเชื่อมขนานระหว่าง A B และมีลูปที่ C">
+          <path d="M65 95 Q145 30 225 95 M65 95 Q145 95 225 95" stroke="var(--red)" stroke-width="4.5" fill="none"/>
+          <path d="M225 95 C185 20 285 20 245 95" stroke="var(--red)" stroke-width="4.5" fill="none"/>
+          <g fill="var(--card)" stroke="var(--ink)" stroke-width="2"><circle cx="65" cy="95" r="19"/><circle cx="225" cy="95" r="19"/></g>
+          <g fill="var(--ink)" font-size="15" font-weight="700" text-anchor="middle" dominant-baseline="central"><text x="65" y="95">A</text><text x="225" y="95">C</text></g>
+          <text x="145" y="28" fill="var(--red)" font-size="12" text-anchor="middle">เส้นขนาน</text>
+          <text x="225" y="14" fill="var(--red)" font-size="12" text-anchor="middle">Loop ที่ C</text>
+          <circle cx="145" cy="95" r="19" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/><text x="145" y="95" fill="var(--ink)" font-size="15" font-weight="700" text-anchor="middle" dominant-baseline="central">B</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <h3>กราฟเชื่อมต่อ (Connected Graph)</h3>
+  <p>หมายถึงกราฟที่สามารถเดินจากจุดยอดใด ๆ ไปยังจุดยอดอื่นได้ผ่านเส้นเชื่อมอย่างน้อยหนึ่งเส้นทาง หากมีจุดยอดบางจุดที่ไม่สามารถเดินถึงกันได้ กราฟนั้นเรียกว่า <strong>Disconnected Graph (กราฟไม่เชื่อมต่อ)</strong> (Rosen, 2011, pp. 678–692)</p>
+  <div class="grid2">
+    <div class="concept">
+      <h3><span style="color:var(--green)">✓ เป็น Connected Graph</span></h3>
+      <p>จุดยอดทุกจุดสามารถเดินถึงกันได้ เช่น A ไป D สามารถเดินผ่าน B และ C ได้</p>
+      <div class="diagram">
+        <svg viewBox="0 0 320 145" role="img" aria-label="กราฟเส้นทาง A-B-C-D เชื่อมต่อกันทุกจุด">
+          <path d="M45 72 L122 72 L199 72 L276 72" stroke="var(--green)" stroke-width="5" fill="none"/>
+          <g fill="var(--card)" stroke="var(--ink)" stroke-width="2"><circle cx="45" cy="72" r="18"/><circle cx="122" cy="72" r="18"/><circle cx="199" cy="72" r="18"/><circle cx="276" cy="72" r="18"/></g>
+          <g fill="var(--ink)" font-size="14" font-weight="700" text-anchor="middle" dominant-baseline="central"><text x="45" y="72">A</text><text x="122" y="72">B</text><text x="199" y="72">C</text><text x="276" y="72">D</text></g>
+        </svg>
+      </div>
+    </div>
+    <div class="concept">
+      <h3><span style="color:var(--red)">✕ ไม่เป็น Connected Graph</span></h3>
+      <p>กราฟแบ่งเป็นสองกลุ่มที่ไม่มีเส้นทางเชื่อมถึงกัน จึงไม่สามารถเดินจาก A ไป C ได้</p>
+      <div class="diagram">
+        <svg viewBox="0 0 320 145" role="img" aria-label="กราฟไม่เชื่อมต่อ แบ่งเป็นกลุ่ม A-B และ C-D ที่ไม่มีเส้นเชื่อมระหว่างกลุ่ม">
+          <path d="M45 72 L115 72 M205 72 L275 72" stroke="var(--red)" stroke-width="5" fill="none"/>
+          <g fill="var(--card)" stroke="var(--ink)" stroke-width="2"><circle cx="45" cy="72" r="18"/><circle cx="115" cy="72" r="18"/><circle cx="205" cy="72" r="18"/><circle cx="275" cy="72" r="18"/></g>
+          <g fill="var(--ink)" font-size="14" font-weight="700" text-anchor="middle" dominant-baseline="central"><text x="45" y="72">A</text><text x="115" y="72">B</text><text x="205" y="72">C</text><text x="275" y="72">D</text></g>
+          <path d="M145 45 L175 99 M175 45 L145 99" stroke="var(--line)" stroke-width="2" stroke-dasharray="4 5"/>
+          <text x="160" y="25" fill="var(--soft)" font-size="11" text-anchor="middle">ไม่มีเส้นทางเชื่อม</text>
+        </svg>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section id="degree">
   <div class="section-head"><span class="section-no">02</span><h2>Degree หรือดีกรีของจุดยอด</h2></div>
-  <p>ดีกรี (Degree) คือ <strong>จำนวนเส้นเชื่อมที่ติดกับจุดยอดนั้น</strong> ใช้สัญลักษณ์ <span class="mono">deg(v)</span> เช่น หากมีเส้นเชื่อมต่อกับจุด A อยู่ 3 เส้น จะกล่าวได้ว่า A มีดีกรีเท่ากับ 3</p>
+  <p>ดีกรี (Degree) คือ <strong>จำนวนเส้นเชื่อมที่ติดกับจุดยอดนั้น</strong> ใช้สัญลักษณ์ <span class="mono">deg(v)</span> เช่น หากมีเส้นเชื่อมต่อกับจุด A อยู่ 3 เส้น จะกล่าวได้ว่า A มีดีกรีเท่ากับ 3 (Rosen, 2011, pp. 651–667)</p>
   <div class="diagram">
     <svg viewBox="0 0 620 190" role="img" aria-label="ตัวอย่างจุดยอด A มีเส้นเชื่อมติดอยู่สามเส้น จึงมีดีกรีสาม">
       <g stroke="var(--ink)" stroke-width="5" stroke-linecap="round"><path d="M290 92 L115 35 M290 92 L470 35 M290 92 L290 170"/></g>
@@ -87,7 +221,7 @@ footer{border-top:1.5px solid var(--ink);padding-top:14px;margin-top:30px;color:
 <section id="euler">
   <div class="section-head"><span class="section-no">03</span><h2>Euler Circuit คืออะไร?</h2></div>
   <div class="panel">
-    <p class="lead"><strong>วงจรออยเลอร์ (Euler Circuit)</strong> คือวงจรในกราฟไม่มีทิศทางที่เชื่อมต่อกัน ซึ่งเดินผ่านเส้นเชื่อมทุกเส้นในกราฟให้ครบ โดยผ่านเส้นเชื่อมแต่ละเส้นเพียงหนึ่งครั้ง และเมื่อเดินครบแล้วต้องกลับมายังจุดเริ่มต้น</p>
+    <p class="lead"><strong>วงจรออยเลอร์ (Euler Circuit)</strong> คือวงจรในกราฟไม่มีทิศทางที่เชื่อมต่อกัน ซึ่งเดินผ่านเส้นเชื่อมทุกเส้นในกราฟให้ครบ โดยผ่านเส้นเชื่อมแต่ละเส้นเพียงหนึ่งครั้ง และเมื่อเดินครบแล้วต้องกลับมายังจุดเริ่มต้น (Rosen, 2011, pp. 693–706)</p>
     <div class="formula">ใช้ทุก Edge ครบ 1 ครั้ง และกลับจุดเริ่มต้น</div>
   </div>
   <p>ลองจินตนาการว่ามีแผนที่ถนนหลายเส้น เราต้องการเดินทางให้ผ่านถนนทุกเส้นเพียงครั้งเดียว โดยไม่เดินซ้ำถนนเส้นเดิม และสุดท้ายต้องกลับมาที่จุดที่เริ่มต้น แนวคิดนี้คือสิ่งที่ Euler Circuit ใช้อธิบาย</p>
@@ -96,7 +230,7 @@ footer{border-top:1.5px solid var(--ink);padding-top:14px;margin-top:30px;color:
 
 <section id="condition">
   <div class="section-head"><span class="section-no">04</span><h2>เงื่อนไขของการมี Euler Circuit</h2></div>
-  <p>สำหรับกราฟไม่มีทิศทางที่มีเส้นเชื่อม เงื่อนไขที่ใช้ตรวจสอบการมี Euler Circuit มีสองข้อหลักดังนี้</p>
+  <p>สำหรับกราฟไม่มีทิศทางที่มีเส้นเชื่อม เงื่อนไขที่ใช้ตรวจสอบการมี Euler Circuit มีสองข้อหลักดังนี้ (Rosen, 2011, pp. 693–706)</p>
   <ul class="checklist">
     <li><strong>กราฟต้องเชื่อมต่อกัน (Connected)</strong> จุดยอดในกราฟต้องอยู่ในส่วนที่เชื่อมถึงกันได้</li>
     <li><strong>จุดยอดทุกจุดต้องมีดีกรีเป็นเลขคู่ (Even Degree)</strong> เช่น 2, 4, 6 หรือ 8</li>
@@ -112,24 +246,56 @@ footer{border-top:1.5px solid var(--ink);padding-top:14px;margin-top:30px;color:
 <section id="compare">
   <div class="section-head"><span class="section-no">05</span><h2>Euler Path ต่างจาก Euler Circuit อย่างไร?</h2></div>
   <div class="grid2">
-    <div class="concept"><h3>Euler Path</h3><p>เส้นทางที่ผ่านเส้นเชื่อมทุกเส้นในกราฟเพียงครั้งเดียว แต่จุดเริ่มต้นและจุดสิ้นสุด<strong>ไม่จำเป็นต้องเป็นจุดเดียวกัน</strong></p><span class="tag">เริ่มต้น ≠ สิ้นสุด ได้</span></div>
-    <div class="concept"><h3>Euler Circuit</h3><p>เส้นทางที่ผ่านเส้นเชื่อมทุกเส้นในกราฟเพียงครั้งเดียว และต้องกลับมาจบที่<strong>จุดเริ่มต้นเดิม</strong></p><span class="tag">เริ่มต้น = สิ้นสุด</span></div>
+    <div class="concept"><h3>Euler Circuit</h3><p>เดินผ่านเส้นเชื่อมทุกเส้นเพียงครั้งเดียว และกลับมาจบที่<strong>จุดเริ่มต้นเดิม</strong></p><span class="tag">เริ่มต้น = สิ้นสุด</span></div>
+    <div class="concept"><h3>Euler Path</h3><p>เดินผ่านเส้นเชื่อมทุกเส้นเพียงครั้งเดียว แต่จุดเริ่มต้นและจุดสิ้นสุด<strong>เป็นคนละจุดกัน</strong> (Rosen, 2011, pp. 693–706)</p><span class="tag">เริ่มต้น ≠ สิ้นสุด</span></div>
   </div>
-  <div class="diagram">
-    <svg viewBox="0 0 620 255" role="img" aria-label="เปรียบเทียบ Euler Path ที่เริ่ม A จบ D กับ Euler Circuit ที่เริ่มและจบ A">
-      <text x="18" y="25" fill="var(--ink)" font-size="16" font-weight="700">Euler Path</text>
-      <g stroke="var(--gold)" stroke-width="5" fill="none" stroke-linecap="round"><path d="M85 78 L225 78 L365 78 L505 78"/></g>
-      <g fill="var(--card)" stroke="var(--ink)" stroke-width="2"><circle cx="85" cy="78" r="18"/><circle cx="225" cy="78" r="18"/><circle cx="365" cy="78" r="18"/><circle cx="505" cy="78" r="18"/></g>
-      <g fill="var(--ink)" font-size="14" text-anchor="middle" dominant-baseline="central"><text x="85" y="78">A</text><text x="225" y="78">B</text><text x="365" y="78">C</text><text x="505" y="78">D</text></g>
-      <text x="18" y="145" fill="var(--ink)" font-size="16" font-weight="700">Euler Circuit</text>
-      <g stroke="var(--green)" stroke-width="5" fill="none" stroke-linecap="round"><path d="M120 205 L260 165 L400 205 L260 240 Z"/></g>
-      <g fill="var(--card)" stroke="var(--ink)" stroke-width="2"><circle cx="120" cy="205" r="18"/><circle cx="260" cy="165" r="18"/><circle cx="400" cy="205" r="18"/><circle cx="260" cy="240" r="18"/></g>
-      <g fill="var(--ink)" font-size="14" text-anchor="middle" dominant-baseline="central"><text x="120" y="205">A</text><text x="260" y="165">B</text><text x="400" y="205">C</text><text x="260" y="240">D</text></g>
-    </svg>
-    <div class="legend"><span><i class="swatch"></i> เส้นทางตัวอย่าง</span><span><i class="swatch" style="background:var(--green)"></i> วงจรที่กลับจุดเริ่มต้น</span></div>
+
+  <div class="concept animated-example">
+    <h3>ตัวอย่างที่ 1: การเดินแบบ Euler Circuit</h3>
+    <p>กราฟสี่เหลี่ยมปิด มีเส้นเชื่อม 4 เส้น จุดยอดทุกจุดมี Degree = 2 จึงสามารถเดินครบทุกเส้นและกลับมาที่ A ได้</p>
+    <div class="diagram anim-diagram">
+      <svg class="route-svg" id="circuitSvg" viewBox="0 0 480 330" role="img" aria-label="กราฟสี่เหลี่ยม Euler Circuit เส้นทาง A ไป B ไป C ไป D และกลับ A">
+        <path class="base-edge" d="M120 70 L360 70 L360 250 L120 250 Z"/>
+        <path class="route-line circuit-line" id="circuitRoute" d="M120 70 L360 70 L360 250 L120 250 L120 70"/>
+        <g class="vertex"><circle cx="120" cy="70" r="23"/><text x="120" y="70">A</text><text class="degree-label" x="120" y="35">deg(A)=2</text></g>
+        <g class="vertex"><circle cx="360" cy="70" r="23"/><text x="360" y="70">B</text><text class="degree-label" x="360" y="35">deg(B)=2</text></g>
+        <g class="vertex"><circle cx="360" cy="250" r="23"/><text x="360" y="250">C</text><text class="degree-label" x="360" y="290">deg(C)=2</text></g>
+        <g class="vertex"><circle cx="120" cy="250" r="23"/><text x="120" y="250">D</text><text class="degree-label" x="120" y="290">deg(D)=2</text></g>
+        <circle class="traveler" id="circuitDot" cx="120" cy="70" r="9"/>
+        <text class="start-label" x="78" y="105">เริ่ม / จบ</text>
+      </svg>
+      <div class="legend"><span><i class="swatch"></i> เส้นทางที่ต้องเดิน</span><span><i class="swatch ink"></i> เส้นเชื่อมในกราฟ</span></div>
+    </div>
+    <div class="anim-controls"><button class="mini play-route" type="button" data-route="circuit">▶ เล่นแอนิเมชัน</button><button class="mini pause-route" type="button" data-route="circuit">⏸ หยุด</button><span class="route-status" id="circuitStatus" aria-live="polite">เส้นทาง: A → B → C → D → A</span></div>
+    <div class="formula">A → B → C → D → A</div>
+    <p class="muted">สังเกตว่าเดินผ่านเส้นเชื่อมทั้ง 4 เส้นครบเส้นละหนึ่งครั้ง และกลับมาที่จุด A โดยไม่มีจุดยอดใดมี Degree เป็นเลขคี่</p>
   </div>
-  <p><strong>ความสัมพันธ์:</strong> Euler Circuit ทุกวงจรเป็น Euler Path ด้วย แต่ Euler Path ไม่จำเป็นต้องเป็น Euler Circuit</p>
-  <p class="muted">ข้อสังเกต: สำหรับกราฟเชื่อมต่อแบบไม่มีทิศทาง หากมีจุดยอดดีกรีคี่ 0 จุด จะมี Euler Circuit; หากมีจุดยอดดีกรีคี่ 2 จุด จะมี Euler Path ที่ไม่ใช่วงจร</p>
+
+  <div class="concept animated-example">
+    <h3>ตัวอย่างที่ 2: การเดินแบบ Euler Path</h3>
+    <p>กราฟมีรูปสี่เหลี่ยมและมีเส้นเชื่อมยื่นออกจากจุด D ไปยังจุด E ทำให้จุด D และ E มี Degree เป็นเลขคี่ 2 จุดพอดี</p>
+    <div class="diagram anim-diagram">
+      <svg class="route-svg" id="pathSvg" viewBox="0 0 480 370" role="img" aria-label="กราฟสี่เหลี่ยมมีเส้นยื่นจาก D ไป E โดย D และ E มีดีกรีคี่">
+        <path class="base-edge" d="M120 70 L360 70 L360 250 L120 250 Z M120 250 L55 325"/>
+        <path class="route-line path-line" id="pathRoute" d="M55 325 L120 250 L120 70 L360 70 L360 250 L120 250"/>
+        <g class="vertex"><circle cx="120" cy="70" r="23"/><text x="120" y="70">A</text><text class="degree-label" x="120" y="35">deg(A)=2</text></g>
+        <g class="vertex"><circle cx="360" cy="70" r="23"/><text x="360" y="70">B</text><text class="degree-label" x="360" y="35">deg(B)=2</text></g>
+        <g class="vertex"><circle cx="360" cy="250" r="23"/><text x="360" y="250">C</text><text class="degree-label" x="360" y="290">deg(C)=2</text></g>
+        <g class="vertex odd"><circle cx="120" cy="250" r="23"/><text x="120" y="250">D</text><text class="degree-label" x="190" y="278">deg(D)=3 (คี่)</text></g>
+        <g class="vertex odd"><circle cx="55" cy="325" r="20"/><text x="55" y="325">E</text><text class="degree-label" x="95" y="335">deg(E)=1 (คี่)</text></g>
+        <circle class="traveler" id="pathDot" cx="55" cy="325" r="9"/>
+        <text class="start-label" x="8" y="295">เริ่ม</text>
+        <text class="start-label" x="150" y="220">จบ</text>
+      </svg>
+      <div class="legend"><span><i class="swatch"></i> เส้นทางที่ต้องเดิน</span><span><i class="swatch red"></i> จุดยอดที่มี Degree เป็นเลขคี่</span></div>
+    </div>
+    <div class="anim-controls"><button class="mini play-route" type="button" data-route="path">▶ เล่นแอนิเมชัน</button><button class="mini pause-route" type="button" data-route="path">⏸ หยุด</button><span class="route-status" id="pathStatus" aria-live="polite">เส้นทาง: E → D → A → B → C → D</span></div>
+    <div class="formula">E → D → A → B → C → D</div>
+    <div class="tablewrap"><table><thead><tr><th>จุดยอด</th><th>Degree</th><th>ประเภท</th></tr></thead><tbody><tr><td>A</td><td class="mono">2</td><td>คู่</td></tr><tr><td>B</td><td class="mono">2</td><td>คู่</td></tr><tr><td>C</td><td class="mono">2</td><td>คู่</td></tr><tr><td>D</td><td class="mono">3</td><td><strong style="color:var(--red)">คี่</strong></td></tr><tr><td>E</td><td class="mono">1</td><td><strong style="color:var(--red)">คี่</strong></td></tr></tbody></table></div>
+    <p class="muted">กราฟนี้มีจุดยอดดีกรีคี่เพียง 2 จุด คือ D และ E จึงมี Euler Path ที่เริ่มจากจุดหนึ่งและสิ้นสุดที่อีกจุดหนึ่งได้ โดยไม่กลับไปยังจุดเริ่มต้น</p>
+  </div>
+
+  <p><strong>สรุปความแตกต่าง:</strong> กราฟเชื่อมต่อแบบไม่มีทิศทางที่มีจุดยอดดีกรีคี่ 0 จุด จะมี Euler Circuit ส่วนกราฟที่มีจุดยอดดีกรีคี่ 2 จุด จะมี Euler Path ที่ไม่ใช่ Euler Circuit</p>
 </section>
 
 <section id="example">
@@ -184,15 +350,65 @@ footer{border-top:1.5px solid var(--ink);padding-top:14px;margin-top:30px;color:
 <footer>
   <strong>เอกสารอ้างอิง</strong>
   <ol>
+    <li>Rosen, K. H. (2011). <em>Discrete mathematics and its applications</em> (7th ed.). McGraw-Hill Education. <a href="https://books.google.com/books?id=QlWQzgEACAAJ" target="_blank" rel="noopener">ดูข้อมูลบรรณานุกรมของหนังสือ</a>.</li>
     <li>Chakraborty, S. (n.d.). <em>Discrete mathematics: Lecture 17–Introduction to graph theory.</em> Indian Statistical Institute. <a href="https://www.isical.ac.in/~sourav/Teaching/ISI/MTech/DMath2019/Lectures/Lecture17.pdf" target="_blank" rel="noopener">อ่านเอกสาร Lecture 17</a>.</li>
     <li>University of Western Ontario. (n.d.). <em>7.4. Paths and circuits.</em> Discrete Structures for Computing. <a href="https://www.csd.uwo.ca/~abrandt5/teaching/DiscreteStructures/Chapter7/paths.html" target="_blank" rel="noopener">อ่านบทเรียน 7.4</a>.</li>
     <li>Shukla, V., Hussin, F. A., Hamid, N. H., &amp; Ali, N. B. Z. (2017). <em>Advances in testing techniques for digital microfluidic biochips.</em> Sensors, 17(8), 1719. <a href="https://doi.org/10.3390/s17081719" target="_blank" rel="noopener">https://doi.org/10.3390/s17081719</a>.</li>
   </ol>
   <p>เรียบเรียงเพื่อการเรียนรู้จากทฤษฎีในรายงานโครงงานและเอกสารอ้างอิงข้างต้น</p>
+  <p class="muted">หมายเหตุ: ข้อมูลบรรณานุกรมที่ระบุปี 2011 ตรงกับหนังสือฉบับพิมพ์ครั้งที่ 7 (Seventh Edition) ไม่ใช่ฉบับพิมพ์ครั้งที่ 8 ซึ่งเผยแพร่ในปี 2019</p>
   <a class="backtop" href="#top">↑ กลับขึ้นด้านบน</a>
 </footer>
 </div>
 <script>
+
+/* ---------- animated Euler Path / Euler Circuit examples ---------- */
+(()=>{
+  const configs={
+    circuit:{svg:document.getElementById('circuitSvg'),path:document.getElementById('circuitRoute'),dot:document.getElementById('circuitDot'),status:document.getElementById('circuitStatus'),duration:5200,label:'A → B → C → D → A'},
+    path:{svg:document.getElementById('pathSvg'),path:document.getElementById('pathRoute'),dot:document.getElementById('pathDot'),status:document.getElementById('pathStatus'),duration:6200,label:'E → D → A → B → C → D'}
+  };
+  const states={};
+  Object.entries(configs).forEach(([key,c])=>{
+    const length=c.path.getTotalLength();
+    c.path.style.strokeDasharray=length;
+    c.path.style.strokeDashoffset=length;
+    const first=c.path.getPointAtLength(0);c.dot.setAttribute('cx',first.x);c.dot.setAttribute('cy',first.y);
+    states[key]={frame:0,started:0,elapsed:0,playing:false,length};
+  });
+  function render(key,progress){
+    const c=configs[key],st=states[key],p=Math.max(0,Math.min(1,progress));
+    c.path.style.strokeDashoffset=st.length*(1-p);
+    const point=c.path.getPointAtLength(st.length*p);
+    c.dot.setAttribute('cx',point.x);c.dot.setAttribute('cy',point.y);
+    if(p>=1){c.status.textContent='เดินครบทุกเส้นแล้ว ✓  '+c.label;}
+  }
+  function tick(key,now){
+    const c=configs[key],st=states[key];if(!st.playing)return;
+    const elapsed=st.elapsed+(now-st.started),progress=Math.min(1,elapsed/c.duration);
+    render(key,progress);
+    if(progress>=1){st.playing=false;st.elapsed=c.duration;return;}
+    st.frame=requestAnimationFrame(t=>tick(key,t));
+  }
+  function play(key){
+    const c=configs[key],st=states[key];
+    if(st.playing)return;
+    if(st.elapsed>=c.duration){st.elapsed=0;render(key,0);}
+    st.playing=true;st.started=performance.now();
+    c.status.textContent='กำลังเดินตามเส้นทาง: '+c.label;
+    st.frame=requestAnimationFrame(t=>tick(key,t));
+  }
+  function pause(key){
+    const c=configs[key],st=states[key];if(!st.playing)return;
+    st.elapsed=Math.min(c.duration,st.elapsed+(performance.now()-st.started));
+    st.playing=false;cancelAnimationFrame(st.frame);
+    render(key,st.elapsed/c.duration);
+    c.status.textContent='หยุดชั่วคราว · '+c.label;
+  }
+  document.querySelectorAll('.play-route').forEach(b=>b.addEventListener('click',()=>play(b.dataset.route)));
+  document.querySelectorAll('.pause-route').forEach(b=>b.addEventListener('click',()=>pause(b.dataset.route)));
+})();
+
 /* ---------- background colour (shared with index.html) ---------- */
 (()=>{
   const root=document.documentElement,DEF="#f6f3ea",$=id=>document.getElementById(id);
