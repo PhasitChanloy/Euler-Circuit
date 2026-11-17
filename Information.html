@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="บทเรียนภาษาไทยเกี่ยวกับ Euler Circuit, Graph Theory, Degree, Euler Path และการประยุกต์ใช้งาน">
+<title>เรียนรู้ Euler Circuit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,500;0,600;1,500&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f6f3ea;--grid:#e2dbc8;--card:#fffdf7;--ink:#1c2b3a;--soft:#5b6b77;--gold:#c08a2e;--red:#b24a3c;--green:#527a62;--line:#c9c0a8;--onink:#fffdf7;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#141b22;--grid:#1f2a33;--card:#1b242d;--ink:#e7e2d4;--soft:#9aa6af;--gold:#d9a443;--red:#e0725f;--green:#6fb08a;--line:#33414c;--onink:#141b22;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#141b22;--grid:#1f2a33;--card:#1b242d;--ink:#e7e2d4;--soft:#9aa6af;--gold:#d9a443;--red:#e0725f;--green:#6fb08a;--line:#33414c;--onink:#141b22;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:16px}body{margin:0;padding:22px 14px 60px;color:var(--ink);font-family:"Newsreader","Noto Sans Thai","Sarabun",Georgia,serif;line-height:1.75;background:linear-gradient(var(--grid) 1px,transparent 1px) 0 0/28px 28px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/28px 28px,var(--paper)}
+.wrap{max-width:1040px;margin:0 auto}header{border-bottom:1.5px solid var(--ink);padding-bottom:16px;margin-bottom:18px}h1{font-size:clamp(30px,5vw,46px);font-style:italic;font-weight:600;margin:0 0 6px;line-height:1.2}header p{margin:0;color:var(--soft);font-size:17px;max-width:850px}.eyebrow{font:700 12px "JetBrains Mono",monospace;letter-spacing:.08em;color:var(--gold);text-transform:uppercase;margin-bottom:8px}
+.topnav{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}.navbtn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 15px;border:1.5px solid var(--ink);border-radius:6px;background:var(--ink);color:var(--onink);font:inherit;font-size:15px;font-weight:700;text-decoration:none;box-shadow:3px 3px 0 var(--line)}.navbtn.light{background:var(--card);color:var(--ink)}
+.toc{display:flex;flex-wrap:wrap;gap:7px;margin:18px 0 22px}.toc a{font-size:14px;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 11px}.toc a:hover{border-color:var(--gold)}
+section{margin:18px 0 24px;scroll-margin-top:14px}.section-head{display:flex;align-items:baseline;gap:10px;border-bottom:1px dashed var(--line);padding-bottom:7px;margin-bottom:12px}.section-no{font:700 13px "JetBrains Mono",monospace;color:var(--gold)}h2{font-size:clamp(22px,3vw,29px);line-height:1.3;margin:0;font-weight:600}h3{font-size:19px;margin:16px 0 6px;line-height:1.4}p{margin:7px 0 11px}.panel{background:var(--card);border:1.5px solid var(--ink);border-radius:6px;padding:16px;margin:12px 0}.lead{font-size:18px}.key{border-left:4px solid var(--gold);background:var(--card);padding:12px 15px;margin:13px 0}.key strong{color:var(--gold)}.muted{color:var(--soft)}.mono{font-family:"JetBrains Mono",monospace}.formula{font:700 clamp(17px,2.5vw,22px) "JetBrains Mono",monospace;text-align:center;padding:12px 8px;background:var(--paper);border:1px dashed var(--line);border-radius:5px;overflow-wrap:anywhere}
+.grid2{display:grid;grid-template-columns:1fr;gap:12px}@media(min-width:720px){.grid2{grid-template-columns:1fr 1fr}}.concept{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:14px}.concept h3{margin:0 0 5px}.concept p:last-child{margin-bottom:0}
+.diagram{background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:8px;margin:12px 0}.diagram svg{display:block;width:100%;height:auto;max-height:330px}.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--soft);padding:4px 2px}.legend span{display:flex;align-items:center;gap:6px}.swatch{width:18px;height:4px;border-radius:4px;background:var(--gold)}.swatch.red{background:var(--red)}.swatch.ink{background:var(--ink)}
+.steps{padding-left:22px}.steps li{padding:3px 0}.checklist{list-style:none;padding:0;margin:8px 0}.checklist li{padding:7px 4px;border-bottom:1px dotted var(--line)}.checklist li::before{content:"✓";font-weight:700;color:var(--green);margin-right:9px}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}th{background:var(--paper)}.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:5px}.tag{display:inline-block;font:12px "JetBrains Mono",monospace;border:1px solid var(--line);border-radius:999px;padding:2px 8px;color:var(--soft)}
+footer{border-top:1.5px solid var(--ink);padding-top:14px;margin-top:30px;color:var(--soft);font-size:13px}footer a{color:var(--ink);overflow-wrap:anywhere}.backtop{display:inline-block;margin-top:10px;color:var(--ink)}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.bgbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
+.bgbar label{font-size:14px;color:var(--soft)}
+.bgbar input[type=color]{width:44px;height:40px;padding:2px;border:1.5px solid var(--ink);border-radius:6px;background:var(--card);cursor:pointer}
+#sw{display:flex;flex-wrap:wrap;gap:6px}
+.dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--ink);cursor:pointer;padding:0}
+.mini{font:inherit;font-size:14px;min-height:40px;padding:6px 12px;border:1.5px solid var(--ink);border-radius:6px;background:transparent;color:var(--ink);cursor:pointer}
+.dot:focus-visible,.mini:focus-visible,.bgbar input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header id="top">
+  <div class="eyebrow">Graph Theory · Learning Notes</div>
+  <h1>ทำความเข้าใจ Euler Circuit</h1>
+  <p>เรียนรู้แนวคิดวงจรออยเลอร์ ตั้งแต่พื้นฐานของกราฟและดีกรี ไปจนถึงเงื่อนไขการตรวจสอบ ตัวอย่างการเดินเส้นทาง และการนำไปใช้ในงานจริง</p>
+  <div class="bgbar"><label for="bgc">สีพื้นหลัง</label><input type="color" id="bgc" value="#f6f3ea" aria-label="เลือกสีพื้นหลัง"><span id="sw"></span><button class="mini" id="bgR" type="button">🎨 สุ่มสี</button><button class="mini" id="bgD" type="button">คืนค่าเดิม</button></div>
+  <nav class="topnav" aria-label="เมนูหลัก">
+    <a class="navbtn" href="index.html">← กลับสู่หน้า Euler Circuit Finder</a>
+    <a class="navbtn light" href="#basics">เริ่มเรียนรู้ ↓</a>
+  </nav>
+</header>
+
+<nav class="toc" aria-label="สารบัญ">
+  <a href="#basics">พื้นฐานกราฟ</a><a href="#degree">Degree</a><a href="#euler">Euler Circuit คืออะไร</a><a href="#condition">เงื่อนไข</a><a href="#compare">Path vs Circuit</a><a href="#example">ตัวอย่าง</a><a href="#application">การประยุกต์ใช้</a><a href="#summary">สรุป</a>
+</nav>
+
+<section id="basics">
+  <div class="section-head"><span class="section-no">01</span><h2>เริ่มจากพื้นฐาน: Graph คืออะไร?</h2></div>
+  <p class="lead">กราฟ (Graph) เป็นโครงสร้างที่ใช้แทนความสัมพันธ์หรือการเชื่อมต่อระหว่างสิ่งต่าง ๆ โดยประกอบด้วย <strong>จุดยอด (Vertex)</strong> และ <strong>เส้นเชื่อม (Edge)</strong></p>
+  <div class="grid2">
+    <div class="concept"><h3>จุดยอด (Vertex)</h3><p>ใช้แทนสิ่งหรือสถานที่ที่เราสนใจ เช่น ห้อง อาคาร สถานี หรือจุดเชื่อมต่อในระบบ</p></div>
+    <div class="concept"><h3>เส้นเชื่อม (Edge)</h3><p>ใช้แทนความสัมพันธ์หรือเส้นทางที่เชื่อมระหว่างจุดยอดสองจุด เช่น ถนนหรือสายเชื่อมต่อ</p></div>
+  </div>
+  <div class="formula">G = (V, E)</div>
+  <p>โดย <span class="mono">V</span> คือเซตของจุดยอด (Vertices) และ <span class="mono">E</span> คือเซตของเส้นเชื่อม (Edges) ตัวอย่างเช่น กราฟที่มีจุดยอด A, B, C และเส้นเชื่อมระหว่างจุดเหล่านั้น</p>
+  <div class="diagram">
+    <svg viewBox="0 0 620 230" role="img" aria-label="ตัวอย่างกราฟที่มีจุดยอด A B C D และเส้นเชื่อม">
+      <g stroke="var(--ink)" stroke-width="4" fill="none" stroke-linecap="round"><path d="M105 115 L260 45 L445 115 L260 190 L105 115"/><path d="M260 45 L260 190"/></g>
+      <g fill="var(--gold)" stroke="var(--ink)" stroke-width="2"><circle cx="105" cy="115" r="22"/><circle cx="260" cy="45" r="22"/><circle cx="445" cy="115" r="22"/><circle cx="260" cy="190" r="22"/></g>
+      <g fill="var(--onink)" font-size="16" font-weight="700" text-anchor="middle" dominant-baseline="central"><text x="105" y="115">A</text><text x="260" y="45">B</text><text x="445" y="115">C</text><text x="260" y="190">D</text></g>
+    </svg>
+    <div class="legend"><span><i class="swatch"></i> จุดยอด</span><span><i class="swatch ink"></i> เส้นเชื่อม</span></div>
+  </div>
+  <div class="key"><strong>กราฟอย่างง่าย (Simple Graph)</strong> คือกราฟไม่มีทิศทางที่ไม่มีลูป (เส้นเชื่อมกลับมายังจุดเดิม) และไม่มีเส้นเชื่อมซ้ำระหว่างจุดยอดคู่เดียวกัน</div>
+  <p><strong>กราฟเชื่อมต่อ (Connected Graph)</strong> หมายถึงกราฟที่สามารถเดินจากจุดยอดใด ๆ ไปยังจุดยอดอื่นได้ผ่านเส้นเชื่อมอย่างน้อยหนึ่งเส้นทาง หากมีบางจุดที่ไม่สามารถเดินถึงกันได้ กราฟนั้นจะเป็นกราฟไม่เชื่อมต่อ</p>
+</section>
+
+<section id="degree">
+  <div class="section-head"><span class="section-no">02</span><h2>Degree หรือดีกรีของจุดยอด</h2></div>
+  <p>ดีกรี (Degree) คือ <strong>จำนวนเส้นเชื่อมที่ติดกับจุดยอดนั้น</strong> ใช้สัญลักษณ์ <span class="mono">deg(v)</span> เช่น หากมีเส้นเชื่อมต่อกับจุด A อยู่ 3 เส้น จะกล่าวได้ว่า A มีดีกรีเท่ากับ 3</p>
+  <div class="diagram">
+    <svg viewBox="0 0 620 190" role="img" aria-label="ตัวอย่างจุดยอด A มีเส้นเชื่อมติดอยู่สามเส้น จึงมีดีกรีสาม">
+      <g stroke="var(--ink)" stroke-width="5" stroke-linecap="round"><path d="M290 92 L115 35 M290 92 L470 35 M290 92 L290 170"/></g>
+      <circle cx="290" cy="92" r="28" fill="var(--gold)" stroke="var(--ink)" stroke-width="2"/><text x="290" y="98" fill="var(--onink)" text-anchor="middle" font-size="20" font-weight="700">A</text>
+      <g fill="var(--card)" stroke="var(--ink)" stroke-width="2"><circle cx="115" cy="35" r="16"/><circle cx="470" cy="35" r="16"/><circle cx="290" cy="170" r="16"/></g>
+      <g fill="var(--soft)" font-size="14" text-anchor="middle"><text x="115" y="65">เส้นที่ 1</text><text x="470" y="65">เส้นที่ 2</text><text x="345" y="174">เส้นที่ 3</text></g>
+    </svg>
+    <div class="formula">deg(A) = 3</div>
+  </div>
+  <p>ดีกรีช่วยให้เราตรวจสอบได้ว่ากราฟมีโอกาสเป็น Euler Circuit หรือไม่ เพราะวงจรออยเลอร์ในกราฟไม่มีทิศทางต้องมีดีกรีของทุกจุดยอดเป็นเลขคู่</p>
+</section>
+
+<section id="euler">
+  <div class="section-head"><span class="section-no">03</span><h2>Euler Circuit คืออะไร?</h2></div>
+  <div class="panel">
+    <p class="lead"><strong>วงจรออยเลอร์ (Euler Circuit)</strong> คือวงจรในกราฟไม่มีทิศทางที่เชื่อมต่อกัน ซึ่งเดินผ่านเส้นเชื่อมทุกเส้นในกราฟให้ครบ โดยผ่านเส้นเชื่อมแต่ละเส้นเพียงหนึ่งครั้ง และเมื่อเดินครบแล้วต้องกลับมายังจุดเริ่มต้น</p>
+    <div class="formula">ใช้ทุก Edge ครบ 1 ครั้ง และกลับจุดเริ่มต้น</div>
+  </div>
+  <p>ลองจินตนาการว่ามีแผนที่ถนนหลายเส้น เราต้องการเดินทางให้ผ่านถนนทุกเส้นเพียงครั้งเดียว โดยไม่เดินซ้ำถนนเส้นเดิม และสุดท้ายต้องกลับมาที่จุดที่เริ่มต้น แนวคิดนี้คือสิ่งที่ Euler Circuit ใช้อธิบาย</p>
+  <div class="key"><strong>จำให้แม่น:</strong> Euler Circuit สนใจการผ่าน <u>เส้นเชื่อม (Edges)</u> ทุกเส้น ไม่ใช่การผ่านจุดยอดทุกจุดเพียงครั้งเดียว จุดยอดอาจถูกเดินผ่านซ้ำได้</div>
+</section>
+
+<section id="condition">
+  <div class="section-head"><span class="section-no">04</span><h2>เงื่อนไขของการมี Euler Circuit</h2></div>
+  <p>สำหรับกราฟไม่มีทิศทางที่มีเส้นเชื่อม เงื่อนไขที่ใช้ตรวจสอบการมี Euler Circuit มีสองข้อหลักดังนี้</p>
+  <ul class="checklist">
+    <li><strong>กราฟต้องเชื่อมต่อกัน (Connected)</strong> จุดยอดในกราฟต้องอยู่ในส่วนที่เชื่อมถึงกันได้</li>
+    <li><strong>จุดยอดทุกจุดต้องมีดีกรีเป็นเลขคู่ (Even Degree)</strong> เช่น 2, 4, 6 หรือ 8</li>
+  </ul>
+  <div class="formula">ทุกจุดยอดมี Degree เป็นเลขคู่</div>
+  <p>เหตุผลที่ดีกรีต้องเป็นเลขคู่ คือเมื่อเราเดินเข้าสู่จุดยอดหนึ่งด้วยเส้นเชื่อมหนึ่งเส้น จะต้องมีเส้นเชื่อมอีกเส้นสำหรับเดินออกจากจุดยอดนั้น เส้นที่เข้าและออกจึงจับคู่กันได้ ทำให้จำนวนเส้นเชื่อมที่ติดกับจุดยอดเป็นจำนวนคู่ ส่วนจุดเริ่มต้นก็ต้องมีเส้นสำหรับออกและเส้นสำหรับกลับเข้ามาเช่นกัน</p>
+  <div class="panel"><h3>ตัวอย่างการตรวจสอบ</h3>
+    <div class="tablewrap"><table><thead><tr><th>จุดยอด</th><th>ดีกรี</th><th>ผล</th></tr></thead><tbody><tr><td>A</td><td class="mono">2</td><td>คู่ ✓</td></tr><tr><td>B</td><td class="mono">2</td><td>คู่ ✓</td></tr><tr><td>C</td><td class="mono">2</td><td>คู่ ✓</td></tr><tr><td>D</td><td class="mono">2</td><td>คู่ ✓</td></tr></tbody></table></div>
+    <p class="muted">หากกราฟตัวอย่างนี้เชื่อมต่อกันและมีเส้นเชื่อมอย่างน้อยหนึ่งเส้น ก็ผ่านเงื่อนไขการมี Euler Circuit</p>
+  </div>
+</section>
+
+<section id="compare">
+  <div class="section-head"><span class="section-no">05</span><h2>Euler Path ต่างจาก Euler Circuit อย่างไร?</h2></div>
+  <div class="grid2">
+    <div class="concept"><h3>Euler Path</h3><p>เส้นทางที่ผ่านเส้นเชื่อมทุกเส้นในกราฟเพียงครั้งเดียว แต่จุดเริ่มต้นและจุดสิ้นสุด<strong>ไม่จำเป็นต้องเป็นจุดเดียวกัน</strong></p><span class="tag">เริ่มต้น ≠ สิ้นสุด ได้</span></div>
+    <div class="concept"><h3>Euler Circuit</h3><p>เส้นทางที่ผ่านเส้นเชื่อมทุกเส้นในกราฟเพียงครั้งเดียว และต้องกลับมาจบที่<strong>จุดเริ่มต้นเดิม</strong></p><span class="tag">เริ่มต้น = สิ้นสุด</span></div>
+  </div>
+  <div class="diagram">
+    <svg viewBox="0 0 620 255" role="img" aria-label="เปรียบเทียบ Euler Path ที่เริ่ม A จบ D กับ Euler Circuit ที่เริ่มและจบ A">
+      <text x="18" y="25" fill="var(--ink)" font-size="16" font-weight="700">Euler Path</text>
+      <g stroke="var(--gold)" stroke-width="5" fill="none" stroke-linecap="round"><path d="M85 78 L225 78 L365 78 L505 78"/></g>
+      <g fill="var(--card)" stroke="var(--ink)" stroke-width="2"><circle cx="85" cy="78" r="18"/><circle cx="225" cy="78" r="18"/><circle cx="365" cy="78" r="18"/><circle cx="505" cy="78" r="18"/></g>
+      <g fill="var(--ink)" font-size="14" text-anchor="middle" dominant-baseline="central"><text x="85" y="78">A</text><text x="225" y="78">B</text><text x="365" y="78">C</text><text x="505" y="78">D</text></g>
+      <text x="18" y="145" fill="var(--ink)" font-size="16" font-weight="700">Euler Circuit</text>
+      <g stroke="var(--green)" stroke-width="5" fill="none" stroke-linecap="round"><path d="M120 205 L260 165 L400 205 L260 240 Z"/></g>
+      <g fill="var(--card)" stroke="var(--ink)" stroke-width="2"><circle cx="120" cy="205" r="18"/><circle cx="260" cy="165" r="18"/><circle cx="400" cy="205" r="18"/><circle cx="260" cy="240" r="18"/></g>
+      <g fill="var(--ink)" font-size="14" text-anchor="middle" dominant-baseline="central"><text x="120" y="205">A</text><text x="260" y="165">B</text><text x="400" y="205">C</text><text x="260" y="240">D</text></g>
+    </svg>
+    <div class="legend"><span><i class="swatch"></i> เส้นทางตัวอย่าง</span><span><i class="swatch" style="background:var(--green)"></i> วงจรที่กลับจุดเริ่มต้น</span></div>
+  </div>
+  <p><strong>ความสัมพันธ์:</strong> Euler Circuit ทุกวงจรเป็น Euler Path ด้วย แต่ Euler Path ไม่จำเป็นต้องเป็น Euler Circuit</p>
+  <p class="muted">ข้อสังเกต: สำหรับกราฟเชื่อมต่อแบบไม่มีทิศทาง หากมีจุดยอดดีกรีคี่ 0 จุด จะมี Euler Circuit; หากมีจุดยอดดีกรีคี่ 2 จุด จะมี Euler Path ที่ไม่ใช่วงจร</p>
+</section>
+
+<section id="example">
+  <div class="section-head"><span class="section-no">06</span><h2>ตัวอย่างการเดิน Euler Circuit</h2></div>
+  <p>พิจารณากราฟวงรอบที่มีจุดยอด 5 จุด และเชื่อมต่อกันเป็นวงดังภาพ</p>
+  <div class="diagram">
+    <svg viewBox="0 0 620 300" role="img" aria-label="กราฟวงรอบห้าจุดยอดพร้อมเส้นทาง A B C D E A">
+      <g stroke="var(--gold)" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M310 45 L475 105 L415 245 L205 245 L145 105 Z"/></g>
+      <g fill="var(--card)" stroke="var(--ink)" stroke-width="2"><circle cx="310" cy="45" r="22"/><circle cx="475" cy="105" r="22"/><circle cx="415" cy="245" r="22"/><circle cx="205" cy="245" r="22"/><circle cx="145" cy="105" r="22"/></g>
+      <g fill="var(--ink)" font-size="16" font-weight="700" text-anchor="middle" dominant-baseline="central"><text x="310" y="45">A</text><text x="475" y="105">B</text><text x="415" y="245">C</text><text x="205" y="245">D</text><text x="145" y="105">E</text></g>
+      <g fill="var(--soft)" font-size="13"><text x="395" y="58">1</text><text x="468" y="185">2</text><text x="305" y="270">3</text><text x="155" y="185">4</text><text x="210" y="58">5</text></g>
+    </svg>
+    <div class="legend"><span><i class="swatch"></i> ลำดับการเดินผ่านเส้นเชื่อม</span></div>
+  </div>
+  <h3>ลำดับการเดิน</h3>
+  <div class="formula">A → B → C → D → E → A</div>
+  <ol class="steps"><li>เริ่มต้นที่จุด A และเดินไป B</li><li>เดินต่อจาก B ไป C</li><li>เดินจาก C ไป D</li><li>เดินจาก D ไป E</li><li>เดินจาก E กลับมายัง A</li></ol>
+  <p>กราฟนี้มีเส้นเชื่อมทั้งหมด 5 เส้น และแต่ละจุดยอดมีดีกรีเท่ากับ 2 ทุกเส้นถูกใช้ครบหนึ่งครั้ง และกลับมาที่ A จึงเป็น Euler Circuit</p>
+</section>
+
+<section id="application">
+  <div class="section-head"><span class="section-no">07</span><h2>Euler Circuit มีประโยชน์อย่างไร?</h2></div>
+  <p>แนวคิด Euler Circuit มีประโยชน์ในปัญหาที่ต้องการวางแผนการเดินทางหรือการตรวจสอบให้ครอบคลุมเส้นเชื่อมทุกเส้น โดยลดการเดินย้อนกลับหรือการใช้เส้นทางเดิมซ้ำโดยไม่จำเป็น ตัวอย่างบริบทที่เกี่ยวข้อง ได้แก่</p>
+  <div class="grid2">
+    <div class="concept"><h3>การวางแผนเส้นทาง</h3><p>ใช้แทนเครือข่ายถนน ทางเดิน หรือเส้นทางตรวจสอบ เพื่อศึกษาว่าจะเดินผ่านทุกเส้นทางได้ครบโดยไม่ซ้ำเส้นหรือไม่</p></div>
+    <div class="concept"><h3>การตรวจสอบระบบ</h3><p>ใช้แนวคิดการครอบคลุมเส้นเชื่อมในการวางแผนทดสอบส่วนเชื่อมต่อของระบบ โดยพิจารณาว่ามีเส้นทางที่ผ่านทุกส่วนที่ต้องตรวจสอบหรือไม่</p></div>
+  </div>
+  <div class="panel">
+    <h3>ตัวอย่างจากงานวิศวกรรม: Digital Microfluidic Biochip (DMFB)</h3>
+    <p>Digital Microfluidic Biochip คือชิปขนาดเล็กที่ใช้ขั้วไฟฟ้าบนพื้นผิวควบคุมการเคลื่อนที่ของหยดของเหลว เช่น เลือด สารเคมี หรือน้ำยา หยดของเหลวสามารถเคลื่อนที่ไปยังตำแหน่งต่าง ๆ บนชิปเพื่อทำกระบวนการตรวจวิเคราะห์ทางชีวภาพหรือการวินิจฉัย</p>
+    <p>ในรายงานโครงงานของเราได้กล่าวถึงการนำแนวคิด Euler Circuit มาใช้ประกอบการวางแผนเส้นทางทดสอบโครงสร้างของชิป โดยพิจารณาการเชื่อมต่อเป็นกราฟ และมองเส้นเชื่อมเป็นส่วนที่ต้องการให้การทดสอบครอบคลุม งานวิจัยของ Mitra และคณะ (2010) ที่รายงานอ้างถึง กล่าวถึงการทดสอบ Digital Microfluidic Biochips ด้วยเทคนิค Eulerization และปัญหา Chinese Postman</p>
+    <div class="key"><strong>เชื่อมโยงกับโครงงาน:</strong> เมื่อแทนระบบเป็นกราฟ เราสามารถใช้ดีกรีและความเชื่อมต่อช่วยตรวจสอบคุณสมบัติของกราฟ ก่อนหาเส้นทางที่ผ่านเส้นเชื่อมตามเงื่อนไขที่กำหนดได้</div>
+    <p class="muted">หมายเหตุ: การใช้งานจริงอาจมีข้อจำกัดเพิ่มเติม เช่น ต้นทุน ระยะทาง หรือข้อกำหนดของอุปกรณ์ ดังนั้น Euler Circuit เป็นแนวคิดทางกราฟที่ช่วยวางแผน ไม่ได้หมายความว่าทุกระบบจะใช้วงจรออยเลอร์ได้โดยตรง</p>
+  </div>
+</section>
+
+<section id="summary">
+  <div class="section-head"><span class="section-no">08</span><h2>สรุปสิ่งที่ควรจำ</h2></div>
+  <div class="panel">
+    <ul class="checklist">
+      <li>Graph ประกอบด้วย Vertex (จุดยอด) และ Edge (เส้นเชื่อม)</li>
+      <li>Degree คือจำนวนเส้นเชื่อมที่ติดกับจุดยอด</li>
+      <li>Euler Path ผ่านเส้นเชื่อมทุกเส้นเพียงครั้งเดียว แต่ไม่จำเป็นต้องกลับจุดเริ่มต้น</li>
+      <li>Euler Circuit ผ่านเส้นเชื่อมทุกเส้นเพียงครั้งเดียว และกลับมายังจุดเริ่มต้น</li>
+      <li>กราฟไม่มีทิศทางที่เชื่อมต่อกันและมีดีกรีทุกจุดเป็นเลขคู่ จะมี Euler Circuit</li>
+      <li>แนวคิดนี้ประยุกต์ใช้กับการวางแผนเส้นทางและการทดสอบระบบที่ต้องครอบคลุมเส้นเชื่อม</li>
+    </ul>
+  </div>
+  <div class="panel"><h3>ลองนำความรู้ไปทดลอง</h3><p>กลับไปที่ Euler Circuit Finder เพื่อสุ่มสร้างกราฟ ตรวจสอบดีกรีของจุดยอด และดูเส้นทาง Euler Circuit ที่ระบบค้นหาได้</p><a class="navbtn" href="index.html">เปิด Euler Circuit Finder →</a></div>
+</section>
+
+<footer>
+  <strong>เอกสารอ้างอิง</strong>
+  <ol>
+    <li>Chakraborty, S. (n.d.). <em>Discrete mathematics: Lecture 17–Introduction to graph theory.</em> Indian Statistical Institute. <a href="https://www.isical.ac.in/~sourav/Teaching/ISI/MTech/DMath2019/Lectures/Lecture17.pdf" target="_blank" rel="noopener">อ่านเอกสาร Lecture 17</a>.</li>
+    <li>University of Western Ontario. (n.d.). <em>7.4. Paths and circuits.</em> Discrete Structures for Computing. <a href="https://www.csd.uwo.ca/~abrandt5/teaching/DiscreteStructures/Chapter7/paths.html" target="_blank" rel="noopener">อ่านบทเรียน 7.4</a>.</li>
+    <li>Shukla, V., Hussin, F. A., Hamid, N. H., &amp; Ali, N. B. Z. (2017). <em>Advances in testing techniques for digital microfluidic biochips.</em> Sensors, 17(8), 1719. <a href="https://doi.org/10.3390/s17081719" target="_blank" rel="noopener">https://doi.org/10.3390/s17081719</a>.</li>
+  </ol>
+  <p>เรียบเรียงเพื่อการเรียนรู้จากทฤษฎีในรายงานโครงงานและเอกสารอ้างอิงข้างต้น</p>
+  <a class="backtop" href="#top">↑ กลับขึ้นด้านบน</a>
+</footer>
+</div>
+<script>
+/* ---------- background colour (shared with index.html) ---------- */
+(()=>{
+  const root=document.documentElement,DEF="#f6f3ea",$=id=>document.getElementById(id);
+  function applyBg(hex,save=true){
+    if(!/^#[0-9a-f]{6}$/i.test(hex))return;
+    const v=parseInt(hex.slice(1),16),lum=(0.299*(v>>16)+0.587*((v>>8)&255)+0.114*(v&255))/255,dark=lum<0.5,s=root.style;
+    root.setAttribute("data-theme",dark?"dark":"light");
+    s.setProperty("--paper",hex);
+    s.setProperty("--grid",`color-mix(in srgb,var(--ink) 10%,${hex})`);
+    s.setProperty("--card",dark?`color-mix(in srgb,${hex} 88%,#fff)`:`color-mix(in srgb,${hex} 35%,#fff)`);
+    $("bgc").value=hex;
+    if(save){try{localStorage.setItem("eulerBg",hex)}catch(e){}}
+  }
+  function resetBg(){
+    root.removeAttribute("data-theme");
+    ["--paper","--grid","--card"].forEach(p=>root.style.removeProperty(p));
+    $("bgc").value=DEF;
+    try{localStorage.removeItem("eulerBg")}catch(e){}
+  }
+  function hsl(h,s,l){
+    s/=100;l/=100;const a=s*Math.min(l,1-l),f=n=>{const k=(n+h/30)%12;return Math.round(255*(l-a*Math.max(-1,Math.min(k-3,9-k,1))))};
+    return "#"+[f(0),f(8),f(4)].map(x=>x.toString(16).padStart(2,"0")).join("");
+  }
+  ["#dbeafe","#fde2e4","#d8f3dc","#fff3bf","#e9d8fd","#1c2b3a","#0f3d3e","#3b1f2b"].forEach(c=>{
+    const b=document.createElement("button");b.type="button";b.className="dot";b.style.background=c;b.setAttribute("aria-label","เลือกสี "+c);b.title=c;
+    b.addEventListener("click",()=>applyBg(c));$("sw").appendChild(b);
+  });
+  $("bgc").addEventListener("input",e=>applyBg(e.target.value));
+  $("bgR").addEventListener("click",()=>applyBg(hsl(Math.random()*360,55+Math.random()*20,Math.random()<0.5?88:20)));
+  $("bgD").addEventListener("click",resetBg);
+  try{const saved=localStorage.getItem("eulerBg");if(saved)applyBg(saved,false)}catch(e){}
+})();
+</script>
+</body>
+</html>
