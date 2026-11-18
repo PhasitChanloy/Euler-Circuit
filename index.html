@@ -68,7 +68,6 @@ td.nb{white-space:normal;font-family:"JetBrains Mono",monospace;font-size:12px}
 .mx td,.mx th{padding:0;width:var(--c);min-width:var(--c);height:var(--c);text-align:center;font-family:"JetBrains Mono",monospace;font-size:var(--f);border:1px solid var(--line)}
 .mx td.on{background:var(--ink);color:var(--onink)}
 .empty{color:var(--soft);padding:30px 8px;text-align:center}
-.cp{width:auto;display:inline-block;padding:8px 14px;margin:0}
 .modal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.65);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:calc(16px + env(safe-area-inset-top,0px)) 14px calc(16px + env(safe-area-inset-bottom,0px))}
 .modal[hidden]{display:none}
 .mbox{background:var(--card);border:1.5px solid var(--ink);border-radius:8px;padding:12px;max-width:560px;width:100%}
@@ -91,7 +90,7 @@ footer{margin-top:20px;color:var(--soft);font-size:13px;text-align:center}
   <h1>ตามหาวงจรออยเลอร์</h1>
   <p>สุ่มสร้างกราฟอย่างง่ายที่มี n จุดยอด แต่ละจุดเชื่อมกับจุดใกล้เคียงแบบสุ่ม 1–4 เส้น (ไม่เชื่อมซ้ำ) แล้วตรวจว่ามีวงจรออยเลอร์หรือไม่ ถ้าไม่ผ่าน กดเพิ่มจุดยอดครั้งละ 5 จนถึง 40 ดูกราฟในแท็บ “กราฟ” และดูข้อมูลของกราฟที่สุ่มได้ในแท็บ “ข้อมูลกราฟ”</p>
   <nav class="quick-links" aria-label="เมนูแนะนำ">
-    <a class="quick-link" href="Information.html">ℹ️ ข้อมูลเกี่ยวกับโครงงาน</a>
+    <a class="quick-link" href="Information.html">ℹ️ Euler Circuit คืออะไร?</a>
     <button class="quick-link secondary" type="button" id="guideBtn">📖 คู่มือสอนใช้เว็บไซต์</button>
   </nav>
   <div class="bgbar"><label for="bgc">สีพื้นหลัง</label><input type="color" id="bgc" value="#f6f3ea" aria-label="เลือกสีพื้นหลัง"><span id="sw"></span><button class="mini" id="bgR">🎨 สุ่มสี</button><button class="mini" id="bgD">คืนค่าเดิม</button></div>
@@ -126,6 +125,7 @@ footer{margin-top:20px;color:var(--soft);font-size:13px;text-align:center}
     </div>
     <div id="pG" role="tabpanel" aria-labelledby="tabG">
       <svg id="svg" viewBox="0 0 720 540" role="img" aria-label="กราฟที่สุ่มได้"></svg>
+      <div class="status" id="graphResult" role="status" aria-live="polite">รอผลการตรวจสอบกราฟ</div>
       <div class="steps" id="steps"></div>
     </div>
     <div id="pD" role="tabpanel" aria-labelledby="tabD" hidden></div>
@@ -313,6 +313,10 @@ function refresh(){
   $("nextBtn").textContent=canNext?`ถัดไป → เพิ่ม 5 จุดยอด (n = ${SIZES[si+1]})`:(res&&res.passed?"พบวงจรออยเลอร์แล้ว":si===SIZES.length-1&&started?"ถึงขีดจำกัดแล้ว (n = 40)":"ถัดไป → เพิ่ม 5 จุดยอด");
 }
 function stats(){
+  const gr=$("graphResult");
+  if(!g||!res){gr.textContent="รอผลการตรวจสอบกราฟ";gr.className="status";}
+  else if(res.passed){gr.textContent="✓ พบวงจรออยเลอร์ (Euler Circuit)";gr.className="status success";}
+  else{gr.textContent="✗ ไม่พบวงจรออยเลอร์ (Euler Circuit)";gr.className="status fail";}
   $("sN").textContent=g?g.n:"—";
   $("sE").textContent=g?g.edges.length:"—";
   $("sD").textContent=g?(2*g.edges.length/g.n).toFixed(2):"—";
@@ -354,14 +358,7 @@ function renderData(){
   if(batch.length){
     h+=`<h3>ผลสุ่มครบ ${BATCH} ครั้งล่าสุด (n = ${batchN})</h3><div class="scroll"><table><tr><th>ครั้งที่</th><th>เส้นเชื่อม</th><th>จุดคี่</th><th>เชื่อมต่อ</th><th>ผล</th></tr>${batch.map(b=>`<tr><td>${b.i}</td><td class="mono">${b.e}</td><td class="mono">${b.odd}</td><td>${mark(b.conn)}</td><td>${b.ok?`<span class="ok">ผ่าน</span>`:`<span class="no">ไม่ผ่าน</span>`}</td></tr>`).join("")}</table></div>`;
   }
-  h+=`<p style="margin-top:16px"><button class="btn o cp" id="cpBtn">คัดลอกข้อมูลกราฟ (JSON)</button></p>`;
   el.innerHTML=h;
-  $("cpBtn").onclick=async()=>{
-    const data={n,vertices:g.pts.map((p,i)=>({id:lab(i),x:p[0],y:p[1],degree:g.deg[i],neighbors:g.adj[i].map((v,j)=>v?lab(j):0).filter(Boolean)})),edges:g.edges.map(e=>[lab(e[0]),lab(e[1])]),eulerCircuit:res.passed,eulerPath:res.passed?res.path.map(lab):null};
-    const b=$("cpBtn");
-    try{await navigator.clipboard.writeText(JSON.stringify(data,null,1));b.textContent="คัดลอกแล้ว ✓"}catch(e){b.textContent="คัดลอกไม่ได้ในหน้านี้"}
-    setTimeout(()=>{b.textContent="คัดลอกข้อมูลกราฟ (JSON)"},1800);
-  };
 }
 function setTab(t){
   const gr=t==="g";
